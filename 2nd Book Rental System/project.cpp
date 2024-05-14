@@ -784,7 +784,9 @@ class Menus: public Verify, public Book {
 		    while(file >> bookName >> bookPrice >> bookQuantity >> bookDuration){
 		        cartList.insert(bookName, bookPrice, bookQuantity, bookDuration);
 		    }
-
+			if(numEntries == 0){
+				cout<<"\n\n\t\t\tIt seems your cart is empty...\n\n"<<endl;
+			}
 		    cartList.display();
 		    cout << "============================================================================="<<endl;
 		    cout << "[1] Edit item"<<endl;
@@ -794,10 +796,16 @@ class Menus: public Verify, public Book {
 		    cout << "Enter your choice: ";
 		    cin >> choice;
 		    if(numEntries == 0){
-		    	if(choice == 0){
+		    	if(choice < 0){
+			    	cout<<"\nInvalid choice! Please re-enter..."<<endl;
+			    	sleep(2);
+					system("cls");
+					cart();
+				}
+		    	else if(choice == 0){
 			    	system("cls");
 			        userMenu();
-				}
+				}	
 				else{
 					cout<<"\nNo items in cart! Please try again later..."<<endl;
 			    	sleep(2);
