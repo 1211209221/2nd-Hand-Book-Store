@@ -944,7 +944,277 @@ class Menus: public Verify, public Book {
 				        cart();
 					}
 				}
-				
+				else if(choice == 2){
+					int lineSelect;
+			    	system("cls");
+			        cout << "============================================================================="<<endl;
+				    cout << "[0] Back \t\t\t    CART"<<endl;
+				    cout << "============================================================================="<<endl;
+				    cout << "User Menu > Cart > Delete"<<endl;
+				    cout << "-----------------------------------------------------------------------------"<<endl;
+				    cout <<left<<setw(5)<<"No."<<left<<setw(37)<<"Book Name"<<left<<setw(8)<<"Days"<<left<<setw(9)<<"Qty."<<left<<setw(12)<<"Total"<<endl;
+				    cartList.display();
+				    cout << "============================================================================="<<endl;
+				    cout << "Select line to delete: ";
+				    cin >> lineSelect;
+				    cout << "-----------------------------------------------------------------------------"<<endl;
+					if(lineSelect == 0){
+				    	system("cls");
+				        cart();
+					}
+					else if(lineSelect > 0 && lineSelect <= numEntries){
+						char updateConfirm;
+						Cart* selectedCart = cartList.getEntryAtIndex(lineSelect-1);
+						
+						if (selectedCart != NULL) {
+					        cout << "Selected '" << selectedCart->getBookName() << "'.\n" << endl;
+					    }
+						cout<<"\nConfirm delete? [Y/N]: ";
+						cin>>updateConfirm;
+						if(updateConfirm == 'Y'||updateConfirm == 'y'){
+							cout<<"\nDeleting from cart..."<<endl;
+							
+						}
+						else if(updateConfirm == 'N'||updateConfirm == 'n'){
+							cout<<"\nCancelling..."<<endl;
+							sleep(1);
+							system("cls");
+							cart();
+						}
+						else{
+							cout<<"\nInvalid Input! Please try again..."<<endl;
+							sleep(2);
+							system("cls");
+							cart();
+						}
+				    	
+				    	filename = "records/cart/" + getUsername() + ".txt";
+				    	ifstream fileInput(filename.c_str());
+    					vector<string> lines;
+    					string line;
+    					
+    					while (getline(fileInput, line)) {
+        					lines.push_back(line);
+    					}
+    					
+    					fileInput.close();
+    											
+				    	ofstream fileOutput(filename.c_str());
+					     for (size_t i = 0; i < lines.size(); ++i) {
+					        if (i != (lineSelect - 1)) {
+					            fileOutput << lines[i] << '\n';
+					        }
+					    }
+
+					
+					    fileOutput.close();
+				    	
+				    	
+				    	sleep(1);
+						system("cls");
+						cart();
+					}
+					else{
+						cout << "\nInvalid choice! Please re-enter...\n";
+				        sleep(1);
+				        system("cls");
+				        cart();
+					}
+				}
+				else if(choice == 3){
+					Cart* current = cartList.getHead();
+					int index = 0;
+				    string bookToSubtract[100];
+				    int stockToSubtract[100];
+					char checkoutConfirm;
+					int bookFinalQuantity2 = 0, count = 0;
+					double bookGrandTotal2 = 0;
+			        system("cls");
+			        cout << "============================================================================="<<endl;
+				    cout << "[0] Back  \t\t\t  CHECK OUT"<<endl;
+				    cout << "============================================================================="<<endl;
+				    cout << "User Menu > Cart > Check Out"<<endl;
+				    cout << "-----------------------------------------------------------------------------"<<endl;
+				    cout <<left<<setw(5)<<"No."<<left<<setw(37)<<"Book Name"<<left<<setw(8)<<"Days"<<left<<setw(9)<<"Qty."<<left<<setw(12)<<"Total"<<endl;
+				    while (current != NULL) {
+				        cout << left << setw(5) << ++count;
+				        current->list();
+				        bookGrandTotal += current->getBookTotalPrice();
+				        bookFinalQuantity += current->getBookQuantity();
+				        bookGrandTotal2 += current->getBookTotalPrice();
+				        bookFinalQuantity2 += current->getBookQuantity();
+				        current = current->getNext();
+				    }
+					cartList.display();
+		    		cout << "============================================================================="<<endl;
+				    cout << "Confirm check out? [Y/N]: ";
+				    cin>>checkoutConfirm;
+						if (checkoutConfirm == 'Y' || checkoutConfirm == 'y') {
+					        cout << "\nGenerating receipt..." << endl;
+					        sleep(2);
+					        system("cls");
+					
+					        int numEntries = 0;
+					        Cart* temp = cartList.getHead();
+					        while (temp != NULL) {
+					            numEntries++;
+					            temp = temp->getNext();
+					        }
+					
+					        string bookToSubtract[numEntries];
+					        int stockToSubtract[numEntries], lineNum[numEntries];
+					
+					        string filename = "records/rented/" + getUsername() + ".txt";
+					        ofstream fileOutput(filename.c_str(), ios::app);
+					        if (!fileOutput) {
+					            cout << "Error opening output file!" << endl;
+					        }
+					
+					        Cart* current = cartList.getHead();
+					        int index = 0;
+					        while (current != NULL) {
+					            time_t currentTime = time(0);
+					            tm currentDate = *localtime(&currentTime);
+					
+					            int daysToAdd = current->getBookDuration();
+					            string rentedBookName, rentedBookDue;
+					            currentDate.tm_mday += daysToAdd;
+					            mktime(&currentDate);
+					            stringstream ss;
+					            ss << setw(2) << setfill('0') << currentDate.tm_mday << "/" << setw(2) << setfill('0') << currentDate.tm_mon + 1 << "/" << setw(4) << setfill('0') << currentDate.tm_year + 1900 << endl;
+					            rentedBookDue = ss.str();
+					
+					            rentedBookName = current->getBookName();
+					            encode(rentedBookName);
+					            bookToSubtract[index] = rentedBookName;
+					            stockToSubtract[index] = current->getBookQuantity();
+					
+					            fileOutput << rentedBookName << " " << current->getBookQuantity() << " " << rentedBookDue;
+					
+					            current = current->getNext();
+					            index++;
+					        }
+					
+					        int totalsum[numEntries];
+					        for (int j = 0; j < numEntries; j++) {
+					            totalsum[j] = 0;
+					            int duplicatenum = 0;
+					
+					            for (int k = 0; k < numEntries; k++) {
+					                if (bookToSubtract[j] == bookToSubtract[k]) {
+					                    if (j != k) {
+					                        duplicatenum += stockToSubtract[k];
+					                    }
+					                }
+					            }
+					            totalsum[j] += stockToSubtract[j];
+					            totalsum[j] += duplicatenum;
+					        }
+					
+					        fileOutput.close();
+			    	
+					    	filename = "records/cart/" + getUsername() + ".txt";			
+					    	ofstream fileClear(filename.c_str(), ios::trunc);
+					    	fileClear.close();
+					    	
+					    	ifstream fileStockRead;
+							vector<string> lines;
+							string line;
+							
+							// Read lines from the file
+							fileStockRead.open("records/books.txt");
+							while (getline(fileStockRead, line)) {
+							    lines.push_back(line);
+							}
+							fileStockRead.close();
+							
+							// Process entries and update lines
+							for (int i = 0; i < numEntries; i++) {
+							    string ID, bookName, author, genre;
+							    double price;
+							    int stock, count = 0;
+							
+							    // Reopen the file at the beginning of each iteration
+							    fileStockRead.open("records/books.txt");
+							    
+							    while (fileStockRead >> ID >> bookName >> price >> stock >> author >> genre) {
+							        count++;
+									
+							        if (bookName == bookToSubtract[i]) {
+							            lineNum[i] = count;
+							            
+							            int newstock = 0;
+							            if(totalsum[i]==0){
+							            	newstock = stock-stockToSubtract[i];
+										}
+										else{
+											newstock = stock-totalsum[i];
+										}
+										int stockConvert  = (newstock), lineChange;
+									    stringstream floatStream;
+									    floatStream << stockConvert;
+									    string stockConverted = floatStream.str();
+									    
+									    double priceConvert = price;
+									    stringstream floatStream2;
+									    floatStream2 << priceConvert;
+									    string price = floatStream2.str();
+									    
+							            lines[lineNum[i] - 1] = ID + " " + bookToSubtract[i] + " " + price + " " + stockConverted + " " + author + " " + genre;
+							            break;
+							        }
+							    }
+							
+							    fileStockRead.close();
+							}
+
+				    		//store the grand total fee (money earned) and add the penalty fee in the fee.txt file
+						    ifstream feein("records/fee.txt");
+						    if(!feein){
+						    	cout<<"Error: File fee.txt couldn't found"<<endl;
+						    	exit(0);
+							}
+							else{
+								//save in variable
+								feein >> FM.fee >> FM.fine >> FM.sum_penalty >> FM.money_earn_rent;
+								feein.close();
+								//add
+								FM.money_earn_rent+=bookGrandTotal2;
+								ofstream addearn("records/fee.txt",ios::trunc);
+								//store back
+								addearn << FM.fee << " " << FM.fine << " " << FM.sum_penalty << " " << FM.money_earn_rent;
+								addearn.close();
+								
+							}					
+
+							ofstream fileStockEdit("records/books.txt");
+							for (size_t i = 0; i < lines.size(); ++i) {
+						        fileStockEdit<< lines[i]<<"\n";
+						    }
+					    	fileStockEdit.close();
+					    	
+//							receipt(c,numEntries);
+						}
+						else if(checkoutConfirm == 'N'||checkoutConfirm == 'n'){
+							cout<<"\nCancelling..."<<endl;
+							sleep(1);
+							system("cls");
+							cart();
+						}
+						else{
+							cout<<"\nInvalid Input! Please try again..."<<endl;
+							sleep(2);
+							system("cls");
+							cart();
+						}
+				    cout << "-----------------------------------------------------------------------------"<<endl;
+				}
+				else{
+			    	cout << "\nInvalid choice! Please re-enter...\n";
+			        sleep(1);
+			        system("cls");
+			        cart();
+				}
 			}
 		}
 
