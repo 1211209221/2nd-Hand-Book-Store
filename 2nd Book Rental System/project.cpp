@@ -46,7 +46,7 @@ public:
 };
 
 class UsersLinkedList {
-public:
+private:
     Users* head;
 
 public:
@@ -142,6 +142,14 @@ public:
     Info() : specialCharacters("~!@#$%^&*_-+=`|(){}[]:;\"'<>,.?/") {}
 
     friend void checkstatus(int num);
+    
+    void setUsername(string uname) {
+        username = uname;
+    }
+
+    void setPassword(string pwd) {
+        password = pwd;
+    }
 
     void registration(UsersLinkedList& userlist) {
     char confirm;
@@ -263,8 +271,8 @@ public:
             cout << "Enter password: ";
             cin >> pwd;
             
-            username = uname;
-            password = pwd;
+            setUsername(uname);
+            setPassword(pwd);
 
             if (linkedList.search(username, password)) {
                 cout << "\nLogin successful! Redirecting to "<<acctype<<" menu...\n";
