@@ -38,7 +38,7 @@ public:
     string password;
     Users* next;
 
-    Users(string& uname, string& pwd) {
+    Users(string uname, string pwd) {
         username = uname;
         password = pwd;
         next = NULL;
@@ -55,7 +55,7 @@ public:
         loadUserFromFile();
     }
 
-    void insert(string& uname, string& pwd) {
+    void insert(string uname, string pwd) {
         Users* newUsers = new Users(uname, pwd);
         if (head == NULL) {
             head = newUsers;
@@ -68,7 +68,7 @@ public:
         }
     }
 
-    bool search(string& uname, string& pwd) {
+    bool search(string uname, string pwd) {
         Users* current = head;
         while (current != NULL) {
             if (current->username == uname && current->password == pwd) {
@@ -79,7 +79,7 @@ public:
         return false;
     }
 
-    bool checkUsername(string& uname) {
+    bool checkUsername(string uname) {
         Users* current = head;
         while (current != NULL) {
             if (current->username == uname) {
@@ -151,7 +151,8 @@ public:
         password = pwd;
     }
 
-    void registration(UsersLinkedList& userlist) {
+    void registration() {
+    UsersLinkedList userlist;
     char confirm;
     do {
         cout << "=============================================================================" << endl;
@@ -316,6 +317,10 @@ class Book {
 	        replace(author.begin(), author.end(), '%', ' ');
 	        replace(genre.begin(), genre.end(), '%', ' ');
 	    }
+	    
+	    string getBookID() {
+	    	return id;
+		}
 	
 	    string getBookName() {
 	        return name;
@@ -336,12 +341,16 @@ class Book {
 	    string getBookAuthor() {
 	        return author;
 	    }
+	    
+	    void setSource(int value) {
+        source = value;
+    	}
 	
 	    string getBookGenre() {
 	        return genre;
 	    }
 	    
-	    int getSource() const {
+	    int getSource()  {
         	return source;
     	}
 	
@@ -387,7 +396,34 @@ class BookLinkedList {
 	            current->next = newBook;
 	        }
 	    }
-	
+	    
+	    void sort() {
+		    if (head == NULL || head->next == NULL) {
+		        return; // No need to sort if list is empty or has only one element
+		    }
+		
+		    Book* current = head;
+		    Book* index = NULL;
+		    while (current != NULL) {
+		        index = current->next;
+		        while (index != NULL) {
+		            if (current->getBookName() > index->getBookName()) {
+		                string temp_id = current->getBookID();
+		                string temp_name = current->getBookName();
+		                double temp_price = current->getBookPrice();
+		                int temp_stock = current->getBookStock();
+		                string temp_author = current->getBookAuthor();
+		                string temp_genre = current->getBookGenre();
+		
+		                current->setdata(index->getBookName(), index->getBookPrice(), index->getBookStock(), index->getBookAuthor(), index->getBookGenre());
+		                index->setdata(temp_name, temp_price, temp_stock, temp_author, temp_genre);
+		            }
+		            index = index->next;
+		        }
+		        current = current->next;
+		    }
+		}
+
 	    void displayAll() {
 	    	int count = 1;
 	        Book* current = head;
@@ -584,7 +620,7 @@ class Menus: public Verify, public Book {
 		                break;
 		            case 2:
 		                system("cls");
-		                
+		                searchCatalog();
 		                break;
 		            case 5:
 						system("cls");
@@ -629,9 +665,7 @@ class Menus: public Verify, public Book {
 		    // Set Book attributes and insert into linked list
 		    while (file >> id >> name >> price >> stock >> author >> genre) {
 		        bookList.insert(id, name, price, stock, author, genre);
-		    }
-		    file.close();
-		
+			}
 		    // Display all books from the linked list
 		    bookList.displayAll();
 		
@@ -654,6 +688,157 @@ class Menus: public Verify, public Book {
 		    }
 		}
 		
+		void searchCatalog() {
+		    string keyword;
+		    int searchoption;
+		    cout << "============================================================================="<<endl;
+    		cout << "[0] Back \t\t      SEARCH CATALOG" << endl;
+    		cout << "============================================================================="<<endl;
+    		cout << "User Menu > Search Catalog" << endl;
+    		cout << "-----------------------------------------------------------------------------" << endl;
+			cout << "[1] Search by book name" << endl;
+			cout << "[2] Search by genre" << endl;
+			cout << "-----------------------------------------------------------------------------" << endl;
+			cout << "Enter your choice: ";
+			cin >> searchoption;
+			if(searchoption==0)
+			{
+				system("cls");
+				userMenu();
+			}
+			else if(searchoption==1)
+			{
+				system("cls");
+				cout << "=============================================================================" << endl;
+    			cout << "[0] Back \t\t\tSEARCH CATALOG" << endl;
+    			cout << "=============================================================================" << endl;
+    			cout << "User Menu > Search Catalog > Search by book name" << endl;
+    			cout << "-----------------------------------------------------------------------------"<<endl;
+    			cout << "Enter book name to search: ";
+    			cin.ignore();
+    			getline(cin, keyword);
+    			transform(keyword.begin(), keyword.end(), keyword.begin(), ::tolower);
+    			cout << "-----------------------------------------------------------------------------"<<endl;
+    		
+    			if (keyword == "0") 
+        		{
+            		system("cls");
+            		searchCatalog();  
+        		}
+		    
+		
+			    BookLinkedList bookList;
+			
+			    string id, name, author, genre;
+			    double price;
+			    int stock;
+			
+			    ifstream file("records/books.txt");
+			    while (file >> id >> name >> price >> stock >> author >> genre) {
+			        bookList.insert(id, name, price, stock, author, genre);
+			        bookList.sort();
+			    }
+			    file.close();
+			
+			    int numBooks = 0;
+			    Book* currentBook = bookList.head;
+			    while (currentBook != nullptr) {
+			        numBooks++;
+			        currentBook = currentBook->next;
+			    }
+			    Book** booksArray = new Book*[numBooks];
+			    currentBook = bookList.head;
+			    int index = 0;
+			    while (currentBook != nullptr) {
+			        booksArray[index++] = currentBook;
+			        currentBook = currentBook->next;
+			    }
+			
+			    for (int i = 0; i < numBooks - 1; i++) {
+			        for (int j = 0; j < numBooks - i - 1; j++) {
+			            if (booksArray[j]->getBookName() > booksArray[j + 1]->getBookName()) {
+			                Book* temp = booksArray[j];
+			                booksArray[j] = booksArray[j + 1];
+			                booksArray[j + 1] = temp;
+			            }
+			        }
+			    }
+			
+			    int first = 0;
+			    int last = numBooks - 1;
+			    int mid;
+				while (first <= last) {
+				    mid = (first + last) / 2;
+				    string bookname = booksArray[mid]->getBookName();
+				    transform(bookname.begin(), bookname.end(), bookname.begin(), ::tolower);
+				    if (bookname == keyword) {
+				        cout << "Search Result:\n" << endl;
+				        cout<<left<<setw(35)<<"Book Name"<<left<<setw(12)<<"Price"<<left<<setw(5)<<"Stock"<<endl;
+				        booksArray[mid]->details();	
+				        char choice;
+        				cout << "-----------------------------------------------------------------------------"<<endl;
+        				cout << "Do you want to rent this book? [Y/N]: ";
+        				cin >> choice;
+        				if(choice == 'Y' || choice == 'y'){
+        					booksArray[mid]->setSource(1);										        
+				        	rental(mid + 1, bookList);
+				        	delete[] booksArray;
+						}
+						else if(choice == 'N' || choice == 'n'){
+							system("cls");
+							searchCatalog();
+						}
+						else{
+							cout << "\nInvalid choice! Please try again...\n";
+        					sleep(2);
+        					system("cls");
+        					searchCatalog();
+						}
+				    } else if (bookname < keyword) {
+				        first = mid + 1;
+				    } else {
+				        last = mid - 1;
+				    }
+				}
+
+			    
+				int searchagain;
+    				cout << "-----------------------------------------------------------------------------" << endl;
+        			cout << "\n\n\t\t\t     No results found.\n\n"<<endl;
+        			cout << "-----------------------------------------------------------------------------" << endl;
+					cout << "[1] Search again"<<endl;
+					cout << "-----------------------------------------------------------------------------" << endl;
+					cout << "Enter Choice: ";
+        			cin >> searchagain;
+        		
+        			if(searchagain == 1)
+        			{
+        				system("cls");
+        				searchCatalog();
+					}
+					else if(searchagain == 0)
+					{
+						system("cls");
+						userMenu();
+					}
+					else
+					{	
+						cout << "\nInvalid choice! Please try again...\n";
+        				sleep(2);
+						system("cls");
+						searchCatalog();
+					}
+			
+			    delete[] booksArray;
+			}
+			else if (searchoption == 2)
+			{
+    			system("cls");
+    			userMenu();
+    		}
+			
+		}
+				
 		void rental(int choice, BookLinkedList& bookList) {
 		    int quantity, duration;
 		    int choice2 = 0;
@@ -679,7 +864,7 @@ class Menus: public Verify, public Book {
 		    }
 		
 		    // Display details of the selected book
-		    cout << "User Menu > " << (bookList.head->getSource() == 0 ? "Catalog" : "Search Catalog") << " > " << selectedBook->getBookName() << endl;
+		    cout << "User Menu > " << (selectedBook->getSource() == 0 ? "Catalog" : "Search Catalog") << " > " << selectedBook->getBookName() << endl;
 		    cout << "-----------------------------------------------------------------------------" << endl;
 		    cout << left<<setw(15)<<"Book Title"<< ": "<< selectedBook->getBookName() <<endl;
 		    cout << left<<setw(15)<<"Author"<< ": "<< selectedBook->getBookAuthor() <<endl;
@@ -693,10 +878,10 @@ class Menus: public Verify, public Book {
 		    cin >> choice2;
 		    if (choice2 == 0) {
 		        system("cls");
-		        if (bookList.head->getSource() == 0) {
+		        if (selectedBook->getSource() == 0) {
 		            catalog();
 		        } else {
-		            // searchCatalog();
+		            searchCatalog();
 		        }
 		    } else if (choice2 == 1) {
 		        char confirm;
@@ -707,7 +892,7 @@ class Menus: public Verify, public Book {
 		        cout << "=============================================================================" << endl;
 		        cout << "[0] Back \t\t\t   RENT" << endl;
 		        cout << "=============================================================================" << endl;
-		        cout << "User Menu > " << (bookList.head->getSource() == 0 ? "Catalog" : "Search Catalog") << " > " << bookList.head->getBookName() << " > Rental" << endl;
+		        cout << "User Menu > " << (selectedBook->getSource() == 0 ? "Catalog" : "Search Catalog") << " > " << selectedBook->getBookName() << " > Rental" << endl;
 		        cout << "-----------------------------------------------------------------------------" << endl;
 		        cout << left<<setw(15)<<"Book Title"<< ": "<< selectedBook->getBookName() <<endl;
 			    cout << left<<setw(15)<<"Author"<< ": "<< selectedBook->getBookAuthor() <<endl;
@@ -1238,7 +1423,6 @@ class Menus: public Verify, public Book {
 
 int main(){
 	Menus client;
-	UsersLinkedList userlist;
     int choice=0;
 	
     while(true){
@@ -1256,7 +1440,7 @@ int main(){
         {
             case 1:
                 system("cls");
-                client.registration(userlist);
+                client.registration();
                 break;
             case 2:
                 system("cls");
