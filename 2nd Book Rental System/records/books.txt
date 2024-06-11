@@ -1,4 +1,4 @@
-M001 The%Adventures%of%Sherlock%Holmes 4.99 4 Arthur%Conan%Doyle Mystery
+M001 The%Adventures%of%Sherlock%Holmes 4.99 0 Arthur%Conan%Doyle Mystery
 N001 The%Martian 5.50 18 Andy%Weir Fiction
 P001 The%Art%of%War 2.75 48 Sun%Tzu Philosophy
 C001 The%Odyssey 3.25 13 Homer Classics
@@ -18,4 +18,4 @@ H002 The%Return 3.00 8 Horror Horror
 T002 Lock%Every%Door 3.60 31 Riley%Sager Thriller
 M003 Gone%Girl 6.00 15 Gillian%Flynn Mystery
 M004 The%Guest%List 2.10 29 Lucy%Foley Mystery
-M005 Blacktop%Wasteland 5.70 59 S.A.%Cosby Mystery
+M005 Blacktop%Wasteland 5.7 0 S.A.%Cosby Mystery

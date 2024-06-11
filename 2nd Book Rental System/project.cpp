@@ -742,14 +742,14 @@ class Menus: public Verify, public Book {
 			
 			    int numBooks = 0;
 			    Book* currentBook = bookList.head;
-			    while (currentBook != nullptr) {
+			    while (currentBook != NULL) {
 			        numBooks++;
 			        currentBook = currentBook->next;
 			    }
 			    Book** booksArray = new Book*[numBooks];
 			    currentBook = bookList.head;
 			    int index = 0;
-			    while (currentBook != nullptr) {
+			    while (currentBook != NULL) {
 			        booksArray[index++] = currentBook;
 			        currentBook = currentBook->next;
 			    }
@@ -907,8 +907,8 @@ class Menus: public Verify, public Book {
 		        cout << left << setw(19) << "Quantity" << ": ";
 		        cin >> quantity;
 		
-		        if (bookList.head->getBookStock() < quantity) {
-		            cout << "\nNot enough stock! Please try again..." << endl;
+		        if (selectedBook->getBookStock() < quantity) {
+		            cout << "\nNot enough stock! Please try again..."<< endl;
 		            sleep(2);
 		            system("cls");
 		            rental(choice, bookList);
@@ -923,7 +923,7 @@ class Menus: public Verify, public Book {
 		            system("cls");
 		            rental(choice, bookList);
 		        }
-		        total_fee = quantity * (bookList.head->getBookPrice() + (rentfee * duration));
+		        total_fee = quantity * (selectedBook->getBookPrice() + (rentfee * duration));
 		        cout << left << setw(19) << "Total fee" << ": RM " << total_fee << endl;
 		        cout << left << setw(19) << "Add to cart? [Y/N] : ";
 		        cin >> confirm;
@@ -1053,7 +1053,7 @@ class Menus: public Verify, public Book {
 					    	replace(bookName2.begin(), bookName2.end(), '%', ' ');	
 					        if (bookName2 == selectedCart->getBookName()) {
 					            if(stock<quantityNew){
-					            	cout<<"\nNot enough stock! Please try again..."<<endl;
+					            	cout<<"\n"<<stock<<"copies remaining. Please try again..."<<endl;
 						    		sleep(2);
 									system("cls");
 									cart();
@@ -1237,15 +1237,15 @@ class Menus: public Verify, public Book {
 				    cout << "User Menu > Cart > Check Out"<<endl;
 				    cout << "-----------------------------------------------------------------------------"<<endl;
 				    cout <<left<<setw(5)<<"No."<<left<<setw(37)<<"Book Name"<<left<<setw(8)<<"Days"<<left<<setw(9)<<"Qty."<<left<<setw(12)<<"Total"<<endl;
-				    while (current != NULL) {
-				        cout << left << setw(5) << ++count;
-				        current->list();
-				        bookGrandTotal += current->getBookTotalPrice();
-				        bookFinalQuantity += current->getBookQuantity();
-				        bookGrandTotal2 += current->getBookTotalPrice();
-				        bookFinalQuantity2 += current->getBookQuantity();
-				        current = current->getNext();
-				    }
+//				    while (current != NULL) {
+//				        cout << left << setw(5) << ++count;
+//				        current->list();
+//				        bookGrandTotal += current->getBookTotalPrice();
+//				        bookFinalQuantity += current->getBookQuantity();
+//				        bookGrandTotal2 += current->getBookTotalPrice();
+//				        bookFinalQuantity2 += current->getBookQuantity();
+//				        current = current->getNext();
+//				    }
 					cartList.display();
 		    		cout << "============================================================================="<<endl;
 				    cout << "Confirm check out? [Y/N]: ";
