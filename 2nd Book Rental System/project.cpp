@@ -52,7 +52,6 @@ private:
 public:
     UsersLinkedList() {
         head = NULL;
-        loadUserFromFile();
     }
 
     void insert(string uname, string pwd) {
@@ -90,10 +89,10 @@ public:
         return false;
     }
 
-    void loadUserFromFile() {
-        ifstream file("records/registered/user.txt");
+    void loadUserFromFile(string filename) {
+        ifstream file(filename.c_str());
         if (!file.is_open()) {
-            cout << "Error: Unable to open the file 'records/registered/user.txt'" << endl;
+            cout << "Error: Unable to open the file '" << filename << "'" << endl;
             return;
         }
 
@@ -104,10 +103,10 @@ public:
         file.close();
     }
 
-    void writeUserToFile() {
-        ofstream file("records/registered/user.txt");
+    void writeUserToFile(string filename) {
+        ofstream file(filename.c_str());
         if (!file.is_open()) {
-            cout << "Error: Unable to open the file 'records/registered/user.txt'" << endl;
+            cout << "Error: Unable to open the file '" << filename << "'" << endl;
             return;
         }
 
@@ -128,6 +127,7 @@ public:
         }
     }
 };
+
 
 class Info {
 private:
@@ -219,7 +219,7 @@ public:
         } else {
             cout << "\nUser registered successfully! Redirecting to menu...\n";
             userlist.insert(username, password);
-            userlist.writeUserToFile();
+            userlist.writeUserToFile("records/registered/user.txt");
             sleep(1);
             system("cls");
             main();
@@ -242,54 +242,62 @@ public:
     }
 };
 
-class Verify: public Info{
+class Verify: public Info {
 public:
     string acctype, filename;
-    UsersLinkedList linkedList;
+    UsersLinkedList userLinkedList;
+    UsersLinkedList adminLinkedList;
 
-    bool login(string acctype){
+    Verify() {
+        userLinkedList.loadUserFromFile("records/registered/user.txt");
+        adminLinkedList.loadUserFromFile("records/registered/admin.txt");
+    }
+
+    bool login(string acctype) {
         retries = 0;
-        do{
-            cout << "============================================================================="<<endl;
-            if(acctype == "user"){
-                cout << "\t\t\t         USER LOGIN"<<endl;
-            }
-            else if(acctype == "admin"){
-                cout << "\t\t\t         ADMIN LOGIN"<<endl;
-            }
-            cout << "============================================================================="<<endl;
-            filename = "records/registered/" + acctype + ".txt";
-            ifstream file(filename.c_str());
-            if (!file.is_open()) {
-                cout << "Error: Unable to open the file '" << filename << "'\n";
-                exit(1);
-            }
+        UsersLinkedList* listToSearch = NULL;
 
-            string uname, pwd;
+        if (acctype == "user") {
+            listToSearch = &userLinkedList;
+        } else if (acctype == "admin") {
+            listToSearch = &adminLinkedList;
+        }
+        
+        do {
+            cout << "=============================================================================" << endl;
+            if (acctype == "user") {
+                cout << "\t\t\t         USER LOGIN" << endl;
+            } else if (acctype == "admin") {
+                cout << "\t\t\t         ADMIN LOGIN" << endl;
+            }
+            cout << "=============================================================================" << endl;
+
             fflush(stdin);
+            string uname, pwd;
             cout << "Enter username: ";
             getline(cin, uname);
             cout << "Enter password: ";
             cin >> pwd;
-            
+
             setUsername(uname);
             setPassword(pwd);
 
-            if (linkedList.search(username, password)) {
-                cout << "\nLogin successful! Redirecting to "<<acctype<<" menu...\n";
+            if (listToSearch->search(username, password)) {
+                cout << "\nLogin successful! Redirecting to " << acctype << " menu...\n";
                 sleep(1);
                 system("cls");
-                return true; // Return true if login is successful
+                return true;
             } else {
-                cout << "\nThe username or user password you have entered is invalid. "<<2-retries<<" more attempt(s)."<<"\n";
+                cout << "\nThe username or password you have entered is invalid. " << 2 - retries << " more attempt(s)." << "\n";
                 sleep(2);
                 system("cls");
             }
             retries++;
-        } while(retries != 3);
+        } while (retries != 3);
         main();
     }
 };
+
 
 
 class Book {
@@ -1693,7 +1701,7 @@ int main(){
                 system("cls");
                 if (client.login("admin")) 
                 {
-                    
+//                    client.adminMenu();
                 }
                 break;
             case 4:
