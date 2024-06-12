@@ -307,16 +307,16 @@ class Book {
 	    }
 	
 	    void setdata(string n, double p, int s, string a, string g) {
-	        name = n;
-	        price = p;
-	        stock = s;
-	        author = a;
-	        genre = g;
-	
-	        replace(name.begin(), name.end(), '%', ' ');
-	        replace(author.begin(), author.end(), '%', ' ');
-	        replace(genre.begin(), genre.end(), '%', ' ');
-	    }
+		    name = n;
+		    price = p;
+		    stock = s;
+		    author = a;
+		    genre = g;
+		
+		    replace(name.begin(), name.end(), '%', ' ');
+		    replace(author.begin(), author.end(), '%', ' ');
+		    replace(genre.begin(), genre.end(), '%', ' ');
+		}
 	    
 	    string getBookID() {
 	    	return id;
@@ -423,6 +423,17 @@ class BookLinkedList {
 		        current = current->next;
 		    }
 		}
+		
+		Book* find(string id) {
+	        Book* current = head;
+	        while (current != NULL) {
+	            if (current->getBookID() == id) {
+	                return current;
+	            }
+	            current = current->next;
+	        }
+	        return NULL;
+    }
 
 	    void displayAll() {
 	    	int count = 1;
@@ -434,6 +445,82 @@ class BookLinkedList {
 	        }
 	    }
 };
+
+class HashTable {
+private:
+    static const int tableSize = 26;
+
+    struct Node {
+        Book* book;
+        Node* next;
+    };
+
+    Node* hashTable[tableSize];
+
+public:
+    HashTable() {
+        for (int i = 0; i < tableSize; ++i) {
+            hashTable[i] = NULL;
+        }
+    }
+
+    ~HashTable() {
+        for (int i = 0; i < tableSize; ++i) {
+            Node* current = hashTable[i];
+            while (current != NULL) {
+                Node* next = current->next;
+                delete current;
+                current = next;
+            }
+            hashTable[i] = NULL;
+        }
+    }
+
+    void insert(Book* book) {
+        string genre = book->getBookGenre();
+        char key = genre[0];
+        int index = key - 'A';
+        if (index < 0 || index >= tableSize) {
+            cerr << "Invalid index: " << index << endl;
+            return;
+        }
+
+        Node* newNode = new Node;
+        newNode->book = book;
+        newNode->next = NULL;
+
+        if (hashTable[index] == NULL) {
+            hashTable[index] = newNode;
+        } else {
+            Node* current = hashTable[index];
+            while (current->next != NULL) {
+                current = current->next;
+            }
+            current->next = newNode;
+        }
+    }
+
+    Book** searchByGenre(string genre, int& numResults, int maxResults) {
+        const int MAX_RESULTS = 100;
+        Book** searchResults = new Book*[MAX_RESULTS];
+        numResults = 0;
+
+        char key = genre[0];
+        int index = key - 'A';
+        if (index < 0 || index >= tableSize) {
+            cout << "Invalid index: " << index << endl;
+            return NULL;
+        }
+
+        Node* current = hashTable[index];
+        while (current != NULL && numResults < MAX_RESULTS) {
+            searchResults[numResults++] = current->book;
+            current = current->next;
+        }
+        return searchResults;
+    }
+};
+
 
 class Cart {
 private:
@@ -834,9 +921,162 @@ class Menus: public Verify, public Book {
 			else if (searchoption == 2)
 			{
     			system("cls");
-    			userMenu();
-    		}
+			    cout << "=============================================================================" << endl;
+			    cout << "[0] Back \t\t\tSEARCH CATALOG" << endl;
+			    cout << "=============================================================================" << endl;
+			    cout << "User Menu > Search Catalog > Search by genre" << endl;
+			    cout << "-----------------------------------------------------------------------------" << endl;
+			    HashTable hashTable;
+			    BookLinkedList bookList;
+			    string id, name, author, genre, line;
+			    double price;
+			    int stock;
+			    int numGenres = 0;
+			    int g = 0;
+			    
+			    ifstream file("records/books.txt");
+			    while (file >> id >> name >> price >> stock >> author >> genre) {
+			        bookList.insert(id, name, price, stock, author, genre);
+			        g++;
+			        bookList.sort();
+			    }
+			    file.close();
+			    
+			    Book* currentBook = bookList.head;
+				while (currentBook != NULL) {
+				    hashTable.insert(currentBook);
+				    currentBook = currentBook->next;
+				}
 			
+    			string *genres = new string[g];
+    			ifstream genresFile("records/books.txt");
+    			while (genresFile >> id >> name >> price >> stock >> author >> genre)
+    			{
+        			genres[numGenres] = genre;
+        			++numGenres;
+    			}
+    			genresFile.close();
+
+    			// Remove duplicate genres
+    			for (int i = 0; i < numGenres - 1; ++i)
+    			{
+        			for (int j = i + 1; j < numGenres;)
+        			{
+            			if (genres[i] == genres[j])
+            			{
+                			for (int k = j; k < numGenres - 1; ++k)
+                			{
+                    			genres[k] = genres[k + 1];
+                			}
+                			--numGenres;
+            			}
+            			else
+            			{
+                			++j;
+            			}
+        			}
+    			}
+
+    			cout << "Available Genres:\n";
+    			for (int i = 0; i < numGenres; i++)
+    			{
+        			replace(genres[i].begin(), genres[i].end(), '%', ' ');
+        			cout << i + 1 << ". " << genres[i] << endl;
+        			replace(genres[i].begin(), genres[i].end(), ' ', '%');
+    			}
+    			cout << "-----------------------------------------------------------------------------"<<endl;
+    			cout << "Enter the genre to search: ";
+			    cin >> genre;
+			    
+			    bool validGenre = false;
+			    for (int i = 0; i < numGenres; ++i) {
+			        if (genre == genres[i]) {
+			            validGenre = true;
+			            break;
+			        }
+			    }
+			
+			    if (!validGenre) {
+			        cout << "\nInvalid genre! Please select a genre from the list." << endl;
+			        sleep(2);
+			        system("cls");
+			        searchCatalog();
+			    }else if (genre == "0") {
+			        system("cls");
+			        searchCatalog();
+			    } else {
+			        int numResults = 0;
+            		Book** searchResults = hashTable.searchByGenre(genre, numResults, g);
+            		if (searchResults == NULL || numResults == 0) {
+            			system("cls");
+					    cout << "=============================================================================" << endl;
+					    cout << "[0] Back \t\t\tSEARCH CATALOG" << endl;
+					    cout << "=============================================================================" << endl;
+					    cout << "User Menu > Search Catalog > Search by genre" << endl;
+					    cout << "-----------------------------------------------------------------------------" << endl;
+		                cout << "-----------------------------------------------------------------------------" << endl;
+	        			cout << "\n\n\t\t\t     No results found.\n\n"<<endl;
+	        			int searchagain;
+	        			cout << "-----------------------------------------------------------------------------" << endl;
+						cout << "[1] Search again"<<endl;
+						cout << "-----------------------------------------------------------------------------" << endl;
+						cout << "Enter Choice: ";
+	        			cin >> searchagain;
+        		
+	        			if(searchagain == 1)
+	        			{
+	        				system("cls");
+	        				searchCatalog();
+						}
+						else if(searchagain == 0)
+						{
+							system("cls");
+							userMenu();
+						}
+						else
+						{	
+							cout << "\nInvalid choice! Please try again...\n";
+	        				sleep(2);
+							system("cls");
+							searchCatalog();
+						}
+            		} else {
+            			system("cls");
+					    cout << "=============================================================================" << endl;
+					    cout << "[0] Back \t\t\tSEARCH CATALOG" << endl;
+					    cout << "=============================================================================" << endl;
+					    cout << "User Menu > Search Catalog > Search by genre" << endl;
+					    cout << "-----------------------------------------------------------------------------" << endl;
+		                cout << "Search Results for Genre '" << genre << "'" << endl;
+		                cout << "-----------------------------------------------------------------------------" << endl;
+		                cout << left << setw(5) << "No." << left << setw(35) << "Book Name" << left << setw(12) << "Price" << left << setw(8) << "Stock" << endl;
+		                for (int i = 0; i < numResults; ++i) {
+							cout << left << setw(5) << i + 1;
+			                searchResults[i]->details();
+                		}
+		                // Ask user to choose a book to rent
+		                int choice;
+		                cout << "-----------------------------------------------------------------------------" << endl;
+		                cout << "Enter the number of the book you want to rent (0 to go back): ";
+		                cin >> choice;
+		                
+		                if (choice == 0) {
+		                    system("cls");
+		                    searchCatalog();
+		                } else if (choice > 0 && choice <= numResults) {
+		                    Book* selectedBook = bookList.find(searchResults[choice - 1]->getBookID());
+			                if (selectedBook != NULL) {
+			                	selectedBook->setSource(1);
+			                    rental(choice, bookList);
+			                } else {
+			                    cout << "Selected book not found in the catalog." << endl;
+			                }
+		                } else {
+		                    cout << "Invalid choice!" << endl;
+		                }
+            		}
+			    }    
+			}					
 		}
 				
 		void rental(int choice, BookLinkedList& bookList) {
@@ -907,8 +1147,8 @@ class Menus: public Verify, public Book {
 		        cout << left << setw(19) << "Quantity" << ": ";
 		        cin >> quantity;
 		
-		        if (selectedBook->getBookStock() < quantity) {
-		            cout << "\nNot enough stock! Please try again..."<< endl;
+		        if (bookList.head->getBookStock() < quantity) {
+		            cout << "\nNot enough stock! Please try again..." << endl;
 		            sleep(2);
 		            system("cls");
 		            rental(choice, bookList);
@@ -923,7 +1163,7 @@ class Menus: public Verify, public Book {
 		            system("cls");
 		            rental(choice, bookList);
 		        }
-		        total_fee = quantity * (selectedBook->getBookPrice() + (rentfee * duration));
+		        total_fee = quantity * (bookList.head->getBookPrice() + (rentfee * duration));
 		        cout << left << setw(19) << "Total fee" << ": RM " << total_fee << endl;
 		        cout << left << setw(19) << "Add to cart? [Y/N] : ";
 		        cin >> confirm;
@@ -1053,7 +1293,7 @@ class Menus: public Verify, public Book {
 					    	replace(bookName2.begin(), bookName2.end(), '%', ' ');	
 					        if (bookName2 == selectedCart->getBookName()) {
 					            if(stock<quantityNew){
-					            	cout<<"\n"<<stock<<"copies remaining. Please try again..."<<endl;
+					            	cout<<"\nNot enough stock! Please try again..."<<endl;
 						    		sleep(2);
 									system("cls");
 									cart();
@@ -1237,15 +1477,15 @@ class Menus: public Verify, public Book {
 				    cout << "User Menu > Cart > Check Out"<<endl;
 				    cout << "-----------------------------------------------------------------------------"<<endl;
 				    cout <<left<<setw(5)<<"No."<<left<<setw(37)<<"Book Name"<<left<<setw(8)<<"Days"<<left<<setw(9)<<"Qty."<<left<<setw(12)<<"Total"<<endl;
-//				    while (current != NULL) {
-//				        cout << left << setw(5) << ++count;
-//				        current->list();
-//				        bookGrandTotal += current->getBookTotalPrice();
-//				        bookFinalQuantity += current->getBookQuantity();
-//				        bookGrandTotal2 += current->getBookTotalPrice();
-//				        bookFinalQuantity2 += current->getBookQuantity();
-//				        current = current->getNext();
-//				    }
+				    while (current != NULL) {
+				        cout << left << setw(5) << ++count;
+				        current->list();
+				        bookGrandTotal += current->getBookTotalPrice();
+				        bookFinalQuantity += current->getBookQuantity();
+				        bookGrandTotal2 += current->getBookTotalPrice();
+				        bookFinalQuantity2 += current->getBookQuantity();
+				        current = current->getNext();
+				    }
 					cartList.display();
 		    		cout << "============================================================================="<<endl;
 				    cout << "Confirm check out? [Y/N]: ";
