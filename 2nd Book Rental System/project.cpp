@@ -153,79 +153,98 @@ public:
 
     void registration() {
     UsersLinkedList userlist;
+    userlist.loadUserFromFile("records/registered/user.txt");
     char confirm;
-    do {
+
         cout << "=============================================================================" << endl;
         cout << "\t\t\t      USER REGISTRATION" << endl;
         cout << "=============================================================================" << endl;
         cout << "Do you want to create a new account? (y/n): ";
         cin >> confirm;
 
-        if (confirm != 'y' && confirm != 'Y') {
+        if (confirm == 'n' || confirm == 'N') {
             cout << "Account creation canceled. Returning to the main menu...\n";
             sleep(2);
             system("cls");
             main();
-        }
-
-        system("cls");
-        cout << "=============================================================================" << endl;
-        cout << "\t\t\t      USER REGISTRATION" << endl;
-        cout << "=============================================================================" << endl;
-
-        fflush(stdin);
-        cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
-        cout << "Enter username: ";
-        getline(cin, username);
-
-        if (username.length() < 5 || !isalpha(username[0])) {
-            cout << "Invalid username! Please enter a username with at least five characters and starting with a letter... ";
-            sleep(2);
-            continue;
-        }
-		cout << "\nPassword Requirements:\n1. Password must contain at least EIGHT characters. \n2. Password must contain at least one UPPERCASE LETTER.\n3. Password must contain at least one LOWERCASE LETTER?\n4. Password must contain at least one DIGIT.\n5. Password must contain at least one SPECIAL CHARACTER within ~!@#$%^&*_-+=`|(){}[]:;\"'<>,.?/.\n" << endl;
-        cout << "Enter password: ";
-        cin >> password;
-
-        if (password.length() < 8) {
-            cout << "Invalid password! Please enter a password with at least eight characters... ";
-            sleep(2);
-            continue;
-        }
-
-        // Check password complexity
-        bool hasUppercase = false, hasLowercase = false, hasDigit = false, hasSpecialChar = false;
-        for (int i = 0; i < password.length(); i++) {
-                if (isupper(password[i])) {
-                    hasUppercase = true;
-                } else if (islower(password[i])) {
-                    hasLowercase = true;
-                } else if (isdigit(password[i])) {
-                    hasDigit = true;
-                } else if (specialCharacters.find(password[i]) != string::npos) {
-                    hasSpecialChar = true;
-                }
-            }
-        if (!(hasUppercase && hasLowercase && hasDigit && hasSpecialChar)) {
-            cout << "\nInvalid password! Password must contain at least: \nONE UPPERCASE LETTER \nONE LOWERCASE LETTER \nONE DIGIT \nONE SPECIAL CHARACTER ";
-            sleep(3);
-            continue;
-        }
-
-        if (userlist.checkUsername(username)) {
-            cout << "\nUsername already taken! Please try again...";
-            sleep(2);
-            system("cls");
-        } else {
-            cout << "\nUser registered successfully! Redirecting to menu...\n";
-            userlist.insert(username, password);
-            userlist.writeUserToFile("records/registered/user.txt");
+        }else if(confirm == 'y' || confirm == 'Y'){
+        	do {
+		        system("cls");        
+		        while (true) {
+		        	cout << "=============================================================================" << endl;
+		        	cout << "\t\t\t      USER REGISTRATION" << endl;
+		        	cout << "=============================================================================" << endl;
+		         	fflush(stdin);       	
+		            cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
+		            cout << "Enter username: ";
+		            getline(cin, username);
+		
+		            if (username.length() < 5 || !isalpha(username[0])) {
+		                cout << "Invalid username! Please enter a username with at least five characters and starting with a letter... ";
+		                sleep(2);
+		                system("cls");
+		                continue;
+		            }
+		
+		            if (userlist.checkUsername(username)) {
+		                cout << "\nUsername already taken! Please try again...";
+		                sleep(2);
+		                system("cls");
+		                continue;
+		            }
+		            break;  // Valid username entered
+		        }
+		
+		        // Password input
+		        while (true) {
+		        	system("cls");
+		        	cout << "=============================================================================" << endl;
+		        	cout << "\t\t\t      USER REGISTRATION" << endl;
+		        	cout << "=============================================================================" << endl;
+		        	cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
+		            cout << "Enter username: " << username << endl;
+		            cout << "\nPassword Requirements:\n1. Password must contain at least EIGHT characters. \n2. Password must contain at least one UPPERCASE LETTER.\n3. Password must contain at least one LOWERCASE LETTER.\n4. Password must contain at least one DIGIT.\n5. Password must contain at least one SPECIAL CHARACTER within ~!@#$%^&*_-+=`|(){}[]:;\"'<>,.?/.\n" << endl;
+		            cout << "Enter password: ";
+		            cin >> password;
+		
+		            if (password.length() < 8) {
+		                cout << "Invalid password! Please enter a password with at least eight characters... ";
+		                sleep(2);
+		                system("cls");
+		                continue;
+		            }
+		
+		            // Check password complexity
+		            bool hasUppercase = false, hasLowercase = false, hasDigit = false, hasSpecialChar = false;
+		            for (char ch : password) {
+		                if (isupper(ch)) hasUppercase = true;
+		                else if (islower(ch)) hasLowercase = true;
+		                else if (isdigit(ch)) hasDigit = true;
+		                else if (specialCharacters.find(ch) != string::npos) hasSpecialChar = true;
+		            }
+		
+		            if (!(hasUppercase && hasLowercase && hasDigit && hasSpecialChar)) {
+		                cout << "\nInvalid password! Password must contain at least: \nONE UPPERCASE LETTER \nONE LOWERCASE LETTER \nONE DIGIT \nONE SPECIAL CHARACTER ";
+		                sleep(3);
+		                system("cls");
+		                continue;
+		            }
+		            break;  // Valid password entered
+		        }
+		
+		        cout << "\nUser registered successfully! Redirecting to menu...\n";
+		        userlist.insert(username, password);
+		        userlist.writeUserToFile("records/registered/user.txt");
+		        sleep(1);
+		        system("cls");
+		        main();
+		    } while (true);
+		}else{
+			cout << "\nInvalid choice! Please re-enter...\n";
             sleep(1);
             system("cls");
-            main();
-            break;
-        }
-    } while (true);
+		    registration();
+		}
 }
 
 
@@ -241,6 +260,7 @@ public:
         replace(text.begin(), text.end(), ' ', '%');
     }
 };
+
 
 class Verify: public Info {
 public:
@@ -294,7 +314,7 @@ public:
             }
             retries++;
         } while (retries != 3);
-        main();
+        return false;
     }
 };
 
@@ -661,7 +681,9 @@ public:
 class Menus: public Verify, public Book {
 	public:
 		//constructor
-		Menus(){
+		Menus(){}
+		
+		void welcomemessage(){
 			cout << "=================================================================================="<<endl;
     		cout << "\t        ~WELCOME TO THE SUNRISE 2ND BOOK RENTAL SYSTEM~"<<endl;
     		cout << "=================================================================================="<<endl;
@@ -730,6 +752,50 @@ class Menus: public Verify, public Book {
 		    }
 		}
 		
+		void adminMenu(){
+		    int choice;	
+			system("cls");
+			while (true) 
+		    {
+		    	cout << "============================================================================="<<endl;
+			    cout << "[0] Back \t\t\t ADMIN MENU"<<endl;
+			    cout << "============================================================================="<<endl;
+			    cout << "Admin Menu"<<endl;
+			    cout << "-----------------------------------------------------------------------------"<<endl;
+			    cout << "Hello "<< getUsername()<<"! What do you want to do?\n"<<endl;
+		        cout << "1. Add Book\n";
+		        cout << "2. Search Book [Update & Delete]\n";
+		        cout << "3. Fee Management\n";
+		        cout << "4. View Rental Records\n";
+			    cout << "-----------------------------------------------------------------------------"<<endl;
+				cout << "Enter your choice: ";
+		        cin >> choice;
+		        
+		        switch (choice) 
+		        {
+		        	case 0:
+		        		system("cls");
+		        		main();
+		        		break;
+//		        	case 1:
+//		        		addbook();
+//		        		break;
+//		        	case 2:
+//		        		searchbook();
+//		        		break;
+//		        	case 3:
+//		        		fee();
+//		        		break;
+//		        	case 4:
+//		        		checkrentalrecord();
+//		        		break;
+		            default:
+		                cout << "\nInvalid choice! Please re-enter...\n";
+		                sleep(1);
+				    	adminMenu();
+		        }
+		    }
+		}
 		
 		void catalog() {
 		    string id, name, author, genre, line;
@@ -1671,6 +1737,7 @@ class Menus: public Verify, public Book {
 
 int main(){
 	Menus client;
+	client.welcomemessage();
     int choice=0;
 	
     while(true){
@@ -1696,13 +1763,21 @@ int main(){
                 {
                     client.userMenu(); // Call the user menu after successful user login
                 }
+                else
+                {
+                	client.welcomemessage();
+				}
                 break;
             case 3:
                 system("cls");
                 if (client.login("admin")) 
                 {
-//                    client.adminMenu();
+                    client.adminMenu();
                 }
+                else
+                {
+                	client.welcomemessage();
+				}
                 break;
             case 4:
                 exit(0);
