@@ -1061,6 +1061,9 @@ class Menus: public Verify, public Book {
     			cout << "-----------------------------------------------------------------------------"<<endl;
     			cout << "Enter the genre to search: ";
 			    cin >> genre;
+			    transform(genre.begin(), genre.end(), genre.begin(), ::tolower);
+			    
+			    genre[0] = toupper(genre[0]);
 			    
 			    bool validGenre = false;
 			    for (int i = 0; i < numGenres; ++i) {
