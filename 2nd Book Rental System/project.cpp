@@ -534,8 +534,7 @@ public:
     }
 
     Book** searchByGenre(string genre, int& numResults, int maxResults) {
-        const int MAX_RESULTS = 100;
-        Book** searchResults = new Book*[MAX_RESULTS];
+        Book** searchResults = new Book*[maxResults];
         numResults = 0;
 
         char key = genre[0];
@@ -546,7 +545,7 @@ public:
         }
 
         Node* current = hashTable[index];
-        while (current != NULL && numResults < MAX_RESULTS) {
+        while (current != NULL && numResults < maxResults) {
             searchResults[numResults++] = current->book;
             current = current->next;
         }
