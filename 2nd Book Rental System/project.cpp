@@ -216,11 +216,16 @@ public:
 		
 		            // Check password complexity
 		            bool hasUppercase = false, hasLowercase = false, hasDigit = false, hasSpecialChar = false;
-		            for (char ch : password) {
-		                if (isupper(ch)) hasUppercase = true;
-		                else if (islower(ch)) hasLowercase = true;
-		                else if (isdigit(ch)) hasDigit = true;
-		                else if (specialCharacters.find(ch) != string::npos) hasSpecialChar = true;
+		            for (int i = 0; i < password.length(); i++) {
+		                if (isupper(password[i])) {
+		                    hasUppercase = true;
+		                } else if (islower(password[i])) {
+		                    hasLowercase = true;
+		                } else if (isdigit(password[i])) {
+		                    hasDigit = true;
+		                } else if (specialCharacters.find(password[i]) != string::npos) {
+		                    hasSpecialChar = true;
+		                }
 		            }
 		
 		            if (!(hasUppercase && hasLowercase && hasDigit && hasSpecialChar)) {
