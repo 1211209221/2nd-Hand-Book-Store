@@ -339,7 +339,8 @@ class Book {
 	        next = NULL;
 	    }
 	
-	    void setdata(string n, double p, int s, string a, string g) {
+	    void setdata(string i, string n, double p, int s, string a, string g) {
+	    	id = i;
 		    name = n;
 		    price = p;
 		    stock = s;
@@ -418,7 +419,7 @@ class BookLinkedList {
 	
 	    void insert(string id, string name, double price, int stock, string author, string genre) {
 	        Book* newBook = new Book;
-	        newBook->setdata(name, price, stock, author, genre);
+	        newBook->setdata(id, name, price, stock, author, genre);
 	        if (head == NULL) {
 	            head = newBook;
 	        } else {
@@ -448,8 +449,8 @@ class BookLinkedList {
 		                string temp_author = current->getBookAuthor();
 		                string temp_genre = current->getBookGenre();
 		
-		                current->setdata(index->getBookName(), index->getBookPrice(), index->getBookStock(), index->getBookAuthor(), index->getBookGenre());
-		                index->setdata(temp_name, temp_price, temp_stock, temp_author, temp_genre);
+		                current->setdata(index->getBookID(), index->getBookName(), index->getBookPrice(), index->getBookStock(), index->getBookAuthor(), index->getBookGenre());
+		                index->setdata(temp_id, temp_name, temp_price, temp_stock, temp_author, temp_genre);
 		            }
 		            index = index->next;
 		        }
@@ -510,9 +511,9 @@ public:
     }
 
     void insert(Book* book) {
-        string genre = book->getBookGenre();
-        char key = genre[0];
-        int index = key - 'A';
+        string id = book->getBookID();
+	    char key = id[0]; // Get the first character of the book ID
+	    int index = key - 'A';
         if (index < 0 || index >= tableSize) {
             cerr << "Invalid index: " << index << endl;
             return;
@@ -917,16 +918,6 @@ class Menus: public Verify, public Book {
 			    while (currentBook != NULL) {
 			        booksArray[index++] = currentBook;
 			        currentBook = currentBook->next;
-			    }
-			
-			    for (int i = 0; i < numBooks - 1; i++) {
-			        for (int j = 0; j < numBooks - i - 1; j++) {
-			            if (booksArray[j]->getBookName() > booksArray[j + 1]->getBookName()) {
-			                Book* temp = booksArray[j];
-			                booksArray[j] = booksArray[j + 1];
-			                booksArray[j + 1] = temp;
-			            }
-			        }
 			    }
 			
 			    int first = 0;
