@@ -723,7 +723,8 @@ class Menus: public Verify, public Book {
 		                break;
 		            case 4:
 		            	system("cls");
-
+						cart();
+						rented();
 		                break;
 		            case 2:
 		                system("cls");
@@ -731,7 +732,7 @@ class Menus: public Verify, public Book {
 		                break;
 		            case 5:
 						system("cls");
-						
+						cout << "case 5" << endl;
 						break;    
 		            default:
 		                cout << "\nInvalid choice! Please re-enter...\n";
@@ -1725,6 +1726,241 @@ class Menus: public Verify, public Book {
 			}
 		}
 
+		void rented(){
+			int choice;
+			string disName, disDateDue, line;
+			int disQuantity, numEntries = 0, count = 1, overdueNo = -1;
+			filename = "records/rented/" + getUsername() + ".txt";			
+			ifstream inputFile(filename.c_str());
+			
+			cout << "============================================================================="<<endl;
+		    cout << "[0] Back \t\t\tRENTED BOOKS"<<endl;
+		    cout << "============================================================================="<<endl;
+		    cout << "User Menu > Rented Books"<<endl;
+		    cout << "-----------------------------------------------------------------------------"<<endl;
+		    cout <<left<<setw(5)<<"No."<<left<<setw(37)<<"Book Name"<<left<<setw(9)<<"Qty."<<left<<setw(16)<<"Due Date"<<left<<setw(12)<<"Status"<<endl;
+		    while(getline(inputFile, line)) {
+		        numEntries++;
+		    }
+		    inputFile.close();
+		    
+		    Book r[numEntries];
+		    int* overdueNum = new int[numEntries];
+		    int* overdueDays = new int[numEntries];
+		    
+		    inputFile.open(filename.c_str());
+		    while(inputFile >> disName >> disQuantity >> disDateDue){
+		    	replace(disName.begin(), disName.end(), '%', ' ');
+									    
+		    	time_t currentTime = time(0);
+    			tm* currentDate = localtime(&currentTime);
+		    	
+		    	tm dueDate = {};
+			    istringstream ss(disDateDue);
+			    
+			    string dayStr, monthStr, yearStr;
+			    getline(ss, dayStr, '/');
+			    getline(ss, monthStr, '/');
+			    getline(ss, yearStr);
+
+			    int day, month, year;
+			    istringstream(dayStr) >> day;
+			    istringstream(monthStr) >> month;
+			    istringstream(yearStr) >> year;
+		    	
+		    	tm specificDate = {0};
+			    specificDate.tm_mday = day;
+			    specificDate.tm_mon = month - 1;
+			    specificDate.tm_year = year - 1900;
+        	
+		    	cout<<left<<setw(5)<<count++;
+				cout<<left<<setw(37)<<disName<<" "<<left<<setw(6)<<disQuantity<<" "<<left<<setw(17)<<disDateDue;
+				
+				int daysDifference = currentDate->tm_mday - specificDate.tm_mday + (currentDate->tm_mon - specificDate.tm_mon) * 30 + (currentDate->tm_year - specificDate.tm_year) * 365;
+				if (currentDate->tm_year == specificDate.tm_year && currentDate->tm_mon == specificDate.tm_mon && currentDate->tm_mday == specificDate.tm_mday) {
+					cout << "\033[1;32mActive\033[0m" << endl;
+				}
+				else if (difftime(currentTime, mktime(&specificDate)) > 0) {
+				    cout << "\033[1;31mOverdue\033[0m"<< endl;
+				    overdueNum[overdueNo++] = count-1;
+				    overdueDays[overdueNo] = daysDifference;
+				}
+				else{
+				    cout << "\033[1;32mActive\033[0m" << endl;
+				}
+				//r[count-2].setdatarental(disName,disQuantity);
+				
+			
+			}
+			
+			
+			if(numEntries == 0){
+				cout<<"\n\n\t\t\t     No books rented...\n\n"<<endl;
+			}
+			float fine = 0;//getoverduefee();
+			cout << "-----------------------------------------------------------------------------"<<endl;
+		    cout << "**DISCLAIMER"<<endl;
+			cout << "  Select a line to return the specific book(s). Late returns are fined"<<endl;
+			cout << "  RM "<<fixed<<setprecision(2)<<fine<<"/day for each overdue book."<<endl;
+			cout << "-----------------------------------------------------------------------------"<<endl;
+		    cout << "Enter your choice: ";
+		    cin>>choice;
+		    if(numEntries == 0 && choice != 0){
+				cout<<"\nNo books rented! Please try again later..."<<endl;
+		    	sleep(2);
+				system("cls");
+				rented();
+			}
+		    if(choice == 0){
+		    	system("cls");
+		        userMenu();
+			} 
+			else if(choice > 0 && choice <= numEntries){
+				char confirmReturn;
+				int overdue = 0;
+				cout << "-----------------------------------------------------------------------------"<<endl;
+			    for (int i = -1; i < overdueNo; ++i) {
+			        if (overdueNum[i] == choice) {
+			            cout<<"Overdue by "<<overdueDays[i+1]<<" day(s). Total pentaly fee is RM "<<fixed<<setprecision(2)<<overdueDays[i+1]*fine*r[choice-1].getBookQuantity()<<"."<<endl;
+			            if(r[choice-1].getBookQuantity()>1){
+				        	cout << "Pay penalty fee and return " << r[choice-1].getBookQuantity() << " copies of '" << r[choice-1].getBookName() << "'?" << endl;
+						}
+						else if(r[choice-1].getBookQuantity()==1){
+							cout<<"Pay penalty fee and return "<<r[choice-1].getBookQuantity()<<" copy of '"<<r[choice-1].getBookName()<<"'?"<<endl;
+						}
+						overdue = 1;
+			        }
+		    	}
+		    	if(overdue == 0){
+		    		if(r[choice-1].getBookQuantity()>1){
+			        	cout << "Return " << r[choice-1].getBookQuantity() << " copies of '" << r[choice-1].getBookName() << "'?" << endl;
+					}
+					else if(r[choice-1].getBookQuantity()==1){
+						cout<<"Return "<<r[choice-1].getBookQuantity()<<" copy of '"<<r[choice-1].getBookName()<<"'?"<<endl;
+					}
+				}
+
+				cout<<"\nConfirm action [Y/N]: ";
+			    cin>>confirmReturn;
+			    
+				if(confirmReturn == 'Y' || confirmReturn == 'y'){
+					ifstream fileStockRead;
+					vector<string> lines;
+					string line;
+					
+					// Read lines from the file
+					fileStockRead.open("records/books.txt");
+					while (getline(fileStockRead, line)) {
+					    lines.push_back(line);
+					}
+					fileStockRead.close();
+					
+					// Process entries and update lines
+				    string ID, bookName, author, genre, price;
+				    int stock, newStock, count = 0;
+				
+				    // Reopen the file at the beginning of each iteration
+				    fileStockRead.open("records/books.txt");
+				    
+				    while (fileStockRead >> ID >> bookName >> price >> stock >> author >> genre) {
+				        count++;
+				        replace(bookName.begin(), bookName.end(), '%', ' ');
+				        
+				        if (bookName == r[choice-1].getBookName()) {
+				            int stockConvert = (stock+r[choice-1].getBookQuantity()), lineChange;
+						    stringstream floatStream;
+						    floatStream << stockConvert;
+						    string newStock = floatStream.str();
+						    
+						    replace(bookName.begin(), bookName.end(), ' ', '%');
+						    
+				            lines[count-1] = ID + " " + bookName + " " + price + " " + newStock + " " + author + " " + genre;
+				            break;
+				        }
+				    }
+				
+				    fileStockRead.close();								
+	
+					ofstream fileStockEdit("records/books.txt");
+					for (size_t i = 0; i < lines.size(); ++i) {
+				        fileStockEdit<< lines[i]<<"\n";
+				    }
+			    	fileStockEdit.close();
+			    	
+			    	filename = "records/rented/" + getUsername() + ".txt";
+			    	ifstream fileInput(filename.c_str());
+					vector<string> lines2;
+					string line2;
+					
+					while (getline(fileInput, line2)) {
+    					lines2.push_back(line2);
+					}
+					
+					fileInput.close();
+											
+			    	ofstream fileOutput(filename.c_str());
+				     for (size_t i = 0; i < lines2.size(); ++i) {
+				        if (i != (choice - 1)) {
+				            fileOutput << lines2[i] << '\n';
+				        }
+				    }
+
+				    fileOutput.close();
+				    
+				    for (int i = -1; i < overdueNo; ++i) {
+				    	if (overdueNum[i] == choice) {
+				    		//use a temp variable to store the penalty fee
+						    float temp_penaltyfee = overdueDays[i+1]*fine*r[choice-1].getBookQuantity();
+						    
+						    //add the penalty fee in the fee.txt file
+						    ifstream feein("records/fee.txt");
+						    if(!feein){
+						    	cout<<"Error: File fee.txt couldn't found"<<endl;
+						    	exit(0);
+							}
+							else{
+								//save in variable
+								feein >> FM.fee >> FM.fine >> FM.sum_penalty >>FM.money_earn_rent;
+								feein.close();
+								//add
+								FM.sum_penalty+=temp_penaltyfee;
+								ofstream addfee("records/fee.txt",ios::trunc);
+								//store back
+								addfee << FM.fee << " " << FM.fine << " " << FM.sum_penalty << " "<< FM.money_earn_rent;
+								addfee.close();
+								
+							}
+						
+						}
+					}
+				    cout<<"\nReturning book(s)..."<<endl;
+				    sleep(1);
+					system("cls");
+					rented();
+				}
+				else if(confirmReturn == 'N' || confirmReturn == 'n'){
+					cout<<"\nCancelling..."<<endl;
+				    sleep(1);
+					system("cls");
+					rented();
+				}
+				else{
+					cout<<"\nInvalid choice! Please re-enter..."<<endl;
+				    sleep(1);
+					system("cls");
+					rented();
+				}
+			}
+			else{
+				cout << "\nInvalid choice! Please re-enter...\n";
+		        sleep(1);
+		        system("cls");
+		        rented();
+			}
+		    inputFile.close();
+		    delete[] overdueNum;
+		    delete[] overdueDays;
+		}
 };
 
 //functions outside the Menus class are admin part (YS)
