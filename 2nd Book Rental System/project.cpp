@@ -723,7 +723,6 @@ class Menus: public Verify, public Book {
 		                break;
 		            case 4:
 		            	system("cls");
-						cart();
 						rented();
 		                break;
 		            case 2:
@@ -732,7 +731,7 @@ class Menus: public Verify, public Book {
 		                break;
 		            case 5:
 						system("cls");
-						cout << "case 5" << endl;
+
 						break;    
 		            default:
 		                cout << "\nInvalid choice! Please re-enter...\n";
