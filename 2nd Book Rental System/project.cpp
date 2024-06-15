@@ -1840,7 +1840,7 @@ void Menus::addbook(){
 			
 			cout << "Name    : ";
 			getline(cin,n);
-			if(name == "0"){
+			if(n == "0"){
 				cout<<"\n~ Incorrect format!"<<endl;
 				cout << "\nInvalid data! Please re-enter...\n";
 				sleep(2);
@@ -1907,16 +1907,16 @@ void Menus::addbook(){
 			
 			cout << "Price   : RM ";
 			cin >> p;
-			if(price <= 0){
+			if(p <= 0){
 				cout<<"\n~ Price CANNOT be written as NEGATIVE / ZERO value!"<<endl;
 				cout << "\nInvalid data! Please re-enter...\n";
 				sleep(2);
 				addbook();
 			} 
-			
+			fflush(stdin);
 			cout << "Stock   : ";
 			cin >> s;
-			if(stock <= 0){
+			if(s <= 0){
 				cout<<"\n~ Stock CANNOT be written as NEGATIVE / ZERO value!"<<endl;
 				cout << "\nInvalid data! Please re-enter...\n";
 				sleep(2);
@@ -1925,7 +1925,7 @@ void Menus::addbook(){
 			fflush(stdin);
 			cout << "Author  : ";
 			getline(cin,a);
-			if(author == "0"){
+			if(a == "0"){
 				cout<<"~ Incorrect format!"<<endl;
 				cout << "\nInvalid data! Please re-enter...\n";
 				sleep(2);
