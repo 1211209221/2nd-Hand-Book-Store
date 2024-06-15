@@ -668,7 +668,16 @@ public:
     }
 };
 
-
+/*class RentedLinkedlist {
+	public:
+		struct Node
+		{
+			Book book;
+			Node* next;
+		};
+		Node *head, *temp, *tail, *prev; 
+		
+};*/
 
 class Menus: public Verify, public Book {
 	public:
@@ -1727,47 +1736,51 @@ class Menus: public Verify, public Book {
 
 		void rented(){
 			int choice;
-			string disName, disDateDue, line;
-			int disQuantity, numEntries = 0, count = 1, overdueNo = -1;
 			filename = "records/rented/" + getUsername() + ".txt";			
 			ifstream inputFile(filename.c_str());
-			
+			string disName, disDateDue, line;
+			int disQuantity, numEntries = 0, count = 1, overdueNo = -1;
+
 			cout << "============================================================================="<<endl;
 		    cout << "[0] Back \t\t\tRENTED BOOKS"<<endl;
 		    cout << "============================================================================="<<endl;
 		    cout << "User Menu > Rented Books"<<endl;
 		    cout << "-----------------------------------------------------------------------------"<<endl;
 		    cout <<left<<setw(5)<<"No."<<left<<setw(37)<<"Book Name"<<left<<setw(9)<<"Qty."<<left<<setw(16)<<"Due Date"<<left<<setw(12)<<"Status"<<endl;
-		    while(getline(inputFile, line)) {
+		    
+			//need to remove if success
+			while(getline(inputFile, line)) {
 		        numEntries++;
 		    }
 		    inputFile.close();
 		    
-		    Book r[numEntries];
+		    Book r[numEntries];			//no need coz link list infinite size
 		    int* overdueNum = new int[numEntries];
 		    int* overdueDays = new int[numEntries];
 		    
 		    inputFile.open(filename.c_str());
-		    while(inputFile >> disName >> disQuantity >> disDateDue){
+		    while(inputFile >> disName >> disQuantity >> disDateDue) {
 		    	replace(disName.begin(), disName.end(), '%', ' ');
-									    
+				//declaring variables for date time
 		    	time_t currentTime = time(0);
+				//tm is human readable format, localtime convert time_t to tm
     			tm* currentDate = localtime(&currentTime);
-		    	
+		    	//declaring due date to tm format, {0} is to initialize all values to 0
 		    	tm dueDate = {};
+				//variable use to separate duedate into day, month, year
 			    istringstream ss(disDateDue);
-			    
 			    string dayStr, monthStr, yearStr;
 			    getline(ss, dayStr, '/');
 			    getline(ss, monthStr, '/');
 			    getline(ss, yearStr);
-
+				//to convert string to int
 			    int day, month, year;
 			    istringstream(dayStr) >> day;
 			    istringstream(monthStr) >> month;
 			    istringstream(yearStr) >> year;
-		    	
+		    	//declaring datatype tm, {0} is to initialize all values to 0
 		    	tm specificDate = {0};
+				//setting the values of specific date
 			    specificDate.tm_mday = day;
 			    specificDate.tm_mon = month - 1;
 			    specificDate.tm_year = year - 1900;
