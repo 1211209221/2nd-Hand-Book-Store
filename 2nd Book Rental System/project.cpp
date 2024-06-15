@@ -1213,7 +1213,7 @@ class Menus: public Verify, public Book {
 		        cout << left << setw(19) << "Quantity" << ": ";
 		        cin >> quantity;
 		
-		        if (bookList.head->getBookStock() < quantity) {
+		        if (selectedBook->getBookStock() < quantity) {
 		            cout << "\nNot enough stock! Please try again..." << endl;
 		            sleep(2);
 		            system("cls");
@@ -1229,7 +1229,7 @@ class Menus: public Verify, public Book {
 		            system("cls");
 		            rental(choice, bookList);
 		        }
-		        total_fee = quantity * (bookList.head->getBookPrice() + (rentfee * duration));
+		        total_fee = quantity * (selectedBook->getBookPrice() + (rentfee * duration));
 		        cout << left << setw(19) << "Total fee" << ": RM " << total_fee << endl;
 		        cout << left << setw(19) << "Add to cart? [Y/N] : ";
 		        cin >> confirm;
