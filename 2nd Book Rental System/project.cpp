@@ -17,6 +17,7 @@
 #include <cctype>
 
 using namespace std;
+
 void changefee(int op);
 void checkstatus(int num);
 int status(string datedue);
@@ -24,6 +25,9 @@ void userMenu();
 void adminMenu();
 void catalog();
 int main();
+void saveextrastock(int additional,string tempname);
+string getGenre(const string& id);
+bool isValidID(const string& id);
 
 struct FeeManagement{
 	float fee;
@@ -153,103 +157,79 @@ public:
 
     void registration() {
     UsersLinkedList userlist;
-    userlist.loadUserFromFile("records/registered/user.txt");
     char confirm;
-
+    do {
         cout << "=============================================================================" << endl;
         cout << "\t\t\t      USER REGISTRATION" << endl;
         cout << "=============================================================================" << endl;
         cout << "Do you want to create a new account? (y/n): ";
         cin >> confirm;
 
-        if (confirm == 'n' || confirm == 'N') {
+        if (confirm != 'y' && confirm != 'Y') {
             cout << "Account creation canceled. Returning to the main menu...\n";
             sleep(2);
             system("cls");
             main();
-        }else if(confirm == 'y' || confirm == 'Y'){
-        	do {
-		        system("cls");        
-		        while (true) {
-		        	cout << "=============================================================================" << endl;
-		        	cout << "\t\t\t      USER REGISTRATION" << endl;
-		        	cout << "=============================================================================" << endl;
-		         	fflush(stdin);       	
-		            cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
-		            cout << "Enter username: ";
-		            getline(cin, username);
-		
-		            if (username.length() < 5 || !isalpha(username[0])) {
-		                cout << "Invalid username! Please enter a username with at least five characters and starting with a letter... ";
-		                sleep(2);
-		                system("cls");
-		                continue;
-		            }
-		
-		            if (userlist.checkUsername(username)) {
-		                cout << "\nUsername already taken! Please try again...";
-		                sleep(2);
-		                system("cls");
-		                continue;
-		            }
-		            break;  // Valid username entered
-		        }
-		
-		        // Password input
-		        while (true) {
-		        	system("cls");
-		        	cout << "=============================================================================" << endl;
-		        	cout << "\t\t\t      USER REGISTRATION" << endl;
-		        	cout << "=============================================================================" << endl;
-		        	cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
-		            cout << "Enter username: " << username << endl;
-		            cout << "\nPassword Requirements:\n1. Password must contain at least EIGHT characters. \n2. Password must contain at least one UPPERCASE LETTER.\n3. Password must contain at least one LOWERCASE LETTER.\n4. Password must contain at least one DIGIT.\n5. Password must contain at least one SPECIAL CHARACTER within ~!@#$%^&*_-+=`|(){}[]:;\"'<>,.?/.\n" << endl;
-		            cout << "Enter password: ";
-		            cin >> password;
-		
-		            if (password.length() < 8) {
-		                cout << "Invalid password! Please enter a password with at least eight characters... ";
-		                sleep(2);
-		                system("cls");
-		                continue;
-		            }
-		
-		            // Check password complexity
-		            bool hasUppercase = false, hasLowercase = false, hasDigit = false, hasSpecialChar = false;
-		            for (int i = 0; i < password.length(); i++) {
-		                if (isupper(password[i])) {
-		                    hasUppercase = true;
-		                } else if (islower(password[i])) {
-		                    hasLowercase = true;
-		                } else if (isdigit(password[i])) {
-		                    hasDigit = true;
-		                } else if (specialCharacters.find(password[i]) != string::npos) {
-		                    hasSpecialChar = true;
-		                }
-		            }
-		
-		            if (!(hasUppercase && hasLowercase && hasDigit && hasSpecialChar)) {
-		                cout << "\nInvalid password! Password must contain at least: \nONE UPPERCASE LETTER \nONE LOWERCASE LETTER \nONE DIGIT \nONE SPECIAL CHARACTER ";
-		                sleep(3);
-		                system("cls");
-		                continue;
-		            }
-		            break;  // Valid password entered
-		        }
-		
-		        cout << "\nUser registered successfully! Redirecting to menu...\n";
-		        userlist.insert(username, password);
-		        userlist.writeUserToFile("records/registered/user.txt");
-		        sleep(1);
-		        system("cls");
-		        main();
-		    } while (true);
-		}else{
-			cout << "\nInvalid choice! Please re-enter...\n";
+        }
+
+        system("cls");
+        cout << "=============================================================================" << endl;
+        cout << "\t\t\t      USER REGISTRATION" << endl;
+        cout << "=============================================================================" << endl;
+
+        fflush(stdin);
+        cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
+        cout << "Enter username: ";
+        getline(cin, username);
+
+        if (username.length() < 5 || !isalpha(username[0])) {
+            cout << "Invalid username! Please enter a username with at least five characters and starting with a letter... ";
+            sleep(2);
+            continue;
+        }
+		cout << "\nPassword Requirements:\n1. Password must contain at least EIGHT characters. \n2. Password must contain at least one UPPERCASE LETTER.\n3. Password must contain at least one LOWERCASE LETTER?\n4. Password must contain at least one DIGIT.\n5. Password must contain at least one SPECIAL CHARACTER within ~!@#$%^&*_-+=`|(){}[]:;\"'<>,.?/.\n" << endl;
+        cout << "Enter password: ";
+        cin >> password;
+
+        if (password.length() < 8) {
+            cout << "Invalid password! Please enter a password with at least eight characters... ";
+            sleep(2);
+            continue;
+        }
+
+        // Check password complexity
+        bool hasUppercase = false, hasLowercase = false, hasDigit = false, hasSpecialChar = false;
+        for (int i = 0; i < password.length(); i++) {
+                if (isupper(password[i])) {
+                    hasUppercase = true;
+                } else if (islower(password[i])) {
+                    hasLowercase = true;
+                } else if (isdigit(password[i])) {
+                    hasDigit = true;
+                } else if (specialCharacters.find(password[i]) != string::npos) {
+                    hasSpecialChar = true;
+                }
+            }
+        if (!(hasUppercase && hasLowercase && hasDigit && hasSpecialChar)) {
+            cout << "\nInvalid password! Password must contain at least: \nONE UPPERCASE LETTER \nONE LOWERCASE LETTER \nONE DIGIT \nONE SPECIAL CHARACTER ";
+            sleep(3);
+            continue;
+        }
+
+        if (userlist.checkUsername(username)) {
+            cout << "\nUsername already taken! Please try again...";
+            sleep(2);
+            system("cls");
+        } else {
+            cout << "\nUser registered successfully! Redirecting to menu...\n";
+            userlist.insert(username, password);
+            userlist.writeUserToFile("records/registered/user.txt");
             sleep(1);
             system("cls");
-		    registration();
-		}
+            main();
+            break;
+        }
+    } while (true);
 }
 
 
@@ -265,7 +245,6 @@ public:
         replace(text.begin(), text.end(), ' ', '%');
     }
 };
-
 
 class Verify: public Info {
 public:
@@ -319,7 +298,7 @@ public:
             }
             retries++;
         } while (retries != 3);
-        return false;
+        main();
     }
 };
 
@@ -339,8 +318,7 @@ class Book {
 	        next = NULL;
 	    }
 	
-	    void setdata(string i, string n, double p, int s, string a, string g) {
-	    	id = i;
+	    void setdata(string n, double p, int s, string a, string g) {
 		    name = n;
 		    price = p;
 		    stock = s;
@@ -350,6 +328,13 @@ class Book {
 		    replace(name.begin(), name.end(), '%', ' ');
 		    replace(author.begin(), author.end(), '%', ' ');
 		    replace(genre.begin(), genre.end(), '%', ' ');
+		}
+		void setid(string i){
+			id = i;
+		}
+		
+		void setStock(int st){
+			stock =st;
 		}
 	    
 	    string getBookID() {
@@ -419,7 +404,8 @@ class BookLinkedList {
 	
 	    void insert(string id, string name, double price, int stock, string author, string genre) {
 	        Book* newBook = new Book;
-	        newBook->setdata(id, name, price, stock, author, genre);
+	        newBook->setdata(name, price, stock, author, genre);
+	        newBook->setid(id);
 	        if (head == NULL) {
 	            head = newBook;
 	        } else {
@@ -449,8 +435,8 @@ class BookLinkedList {
 		                string temp_author = current->getBookAuthor();
 		                string temp_genre = current->getBookGenre();
 		
-		                current->setdata(index->getBookID(), index->getBookName(), index->getBookPrice(), index->getBookStock(), index->getBookAuthor(), index->getBookGenre());
-		                index->setdata(temp_id, temp_name, temp_price, temp_stock, temp_author, temp_genre);
+		                current->setdata(index->getBookName(), index->getBookPrice(), index->getBookStock(), index->getBookAuthor(), index->getBookGenre());
+		                index->setdata(temp_name, temp_price, temp_stock, temp_author, temp_genre);
 		            }
 		            index = index->next;
 		        }
@@ -511,9 +497,9 @@ public:
     }
 
     void insert(Book* book) {
-        string id = book->getBookID();
-	    char key = id[0]; // Get the first character of the book ID
-	    int index = key - 'A';
+        string genre = book->getBookGenre();
+        char key = genre[0];
+        int index = key - 'A';
         if (index < 0 || index >= tableSize) {
             cerr << "Invalid index: " << index << endl;
             return;
@@ -535,7 +521,8 @@ public:
     }
 
     Book** searchByGenre(string genre, int& numResults, int maxResults) {
-        Book** searchResults = new Book*[maxResults];
+        const int MAX_RESULTS = 100;
+        Book** searchResults = new Book*[MAX_RESULTS];
         numResults = 0;
 
         char key = genre[0];
@@ -546,7 +533,7 @@ public:
         }
 
         Node* current = hashTable[index];
-        while (current != NULL && numResults < maxResults) {
+        while (current != NULL && numResults < MAX_RESULTS) {
             searchResults[numResults++] = current->book;
             current = current->next;
         }
@@ -686,9 +673,7 @@ public:
 class Menus: public Verify, public Book {
 	public:
 		//constructor
-		Menus(){}
-		
-		void welcomemessage(){
+		Menus(){
 			cout << "=================================================================================="<<endl;
     		cout << "\t        ~WELCOME TO THE SUNRISE 2ND BOOK RENTAL SYSTEM~"<<endl;
     		cout << "=================================================================================="<<endl;
@@ -759,9 +744,10 @@ class Menus: public Verify, public Book {
 		
 		void adminMenu(){
 		    int choice;	
-			system("cls");
+			
 			while (true) 
 		    {
+		    	system("cls");
 		    	cout << "============================================================================="<<endl;
 			    cout << "[0] Back \t\t\t ADMIN MENU"<<endl;
 			    cout << "============================================================================="<<endl;
@@ -782,18 +768,18 @@ class Menus: public Verify, public Book {
 		        		system("cls");
 		        		main();
 		        		break;
-//		        	case 1:
-//		        		addbook();
-//		        		break;
-//		        	case 2:
-//		        		searchbook();
-//		        		break;
-//		        	case 3:
-//		        		fee();
-//		        		break;
-//		        	case 4:
-//		        		checkrentalrecord();
-//		        		break;
+		        	case 1:
+		        		addbook();
+		        		break;
+		        	case 2:
+		        		//searchbook();
+		        		break;
+		        	case 3:
+		        		//fee();
+		        		break;
+		        	case 4:
+		        		//checkrentalrecord();
+		        		break;
 		            default:
 		                cout << "\nInvalid choice! Please re-enter...\n";
 		                sleep(1);
@@ -801,6 +787,7 @@ class Menus: public Verify, public Book {
 		        }
 		    }
 		}
+		
 		
 		void catalog() {
 		    string id, name, author, genre, line;
@@ -918,6 +905,16 @@ class Menus: public Verify, public Book {
 			    while (currentBook != NULL) {
 			        booksArray[index++] = currentBook;
 			        currentBook = currentBook->next;
+			    }
+			
+			    for (int i = 0; i < numBooks - 1; i++) {
+			        for (int j = 0; j < numBooks - i - 1; j++) {
+			            if (booksArray[j]->getBookName() > booksArray[j + 1]->getBookName()) {
+			                Book* temp = booksArray[j];
+			                booksArray[j] = booksArray[j + 1];
+			                booksArray[j + 1] = temp;
+			            }
+			        }
 			    }
 			
 			    int first = 0;
@@ -1056,9 +1053,6 @@ class Menus: public Verify, public Book {
     			cout << "-----------------------------------------------------------------------------"<<endl;
     			cout << "Enter the genre to search: ";
 			    cin >> genre;
-			    transform(genre.begin(), genre.end(), genre.begin(), ::tolower);
-			    
-			    genre[0] = toupper(genre[0]);
 			    
 			    bool validGenre = false;
 			    for (int i = 0; i < numGenres; ++i) {
@@ -1733,9 +1727,351 @@ class Menus: public Verify, public Book {
 
 };
 
+//functions outside the Menus class are admin part (YS)
+void Menus::addbook(){
+	char choice;
+	string yesno;
+	int error;
+	
+	do{
+		system("cls");
+		fflush(stdin);
+		cout << "=============================================================================================="<<endl;
+		cout << "[0] Back \t\t\t\t  ADD BOOK"<<endl;
+		cout << "=============================================================================================="<<endl;
+		cout << "Admin Menu > Add Book "<<endl;
+		cout << "----------------------------------------------------------------------------------------------"<<endl;
+		cout << "The first letter of ID that corresponds to the genre:"<<endl;
+		cout << left << setw(15) <<"\tM-Mystery" << setw(15) <<"N-Fiction"<< setw(15) <<"X-Non-fiction"<<setw(15) <<"C-Classics"<< setw(15) <<"A-Action"<<endl;
+		cout << left << setw(15) <<"\tT-Thriller"<< setw(15) <<"R-Children"<< setw(15) <<"H-Horror"<< setw(15) <<"D-Dystopian"<< setw(15) <<"I-Historical"<<endl;
+		cout << left << setw(15) <<"\tF-Fantasy" << setw(15) <<"L-Romance"<< setw(15) <<"P-Philosophy"<< setw(15) <<"E-Detective"<<endl;
+		cout << "----------------------------------------------------------------------------------------------"<<endl;
+		cout << "Please fill the information of new book."<<endl<<endl;
+		fflush(stdin);
+		
+		//declare dma booklinkedlist obj
+		BookLinkedList bl;
+	    
+		string id, name, author, genre, I, n, a, g;
+		float price, p;
+		int stock, s;
+			
+		//open file to check whether same or not
+		ifstream readfile("records/books.txt");
+		if(!readfile){
+			cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+			exit(0);
+		}
+		else{
+			cout << "Book ID (0 to go back): ";
+			getline(cin,I);
+			if(I=="0"){
+				cout<<"Back to admin menu..."<<endl;
+				sleep(1);
+				adminMenu();
+			}
+			else if(!isValidID(I)){
+				cout<<"~ Incorrect format!"<<endl;
+				cout << "\nInvalid data! Please re-enter...\n";
+				sleep(2);
+				addbook();
+			}
+			
+			
+			while (readfile >> id >> name >> price >> stock >> author >> genre) {
+		        bl.insert(id, name, price, stock, author, genre);
+		        bl.sort();
+			}
+			readfile.close();
+			    
+			int numBooks = 0;
+			Book* currentBook = bl.head;
+		    while (currentBook != NULL) {
+		        numBooks++;
+		        currentBook = currentBook->next;
+		    }
+		    Book** booksArray = new Book*[numBooks];
+		    currentBook = bl.head;
+		    int index = 0;
+		    while (currentBook != NULL) {
+		        booksArray[index++] = currentBook;
+		        currentBook = currentBook->next;
+		    }
+			
+			for (int i = 0; i < numBooks - 1; i++) {
+		        for (int j = 0; j < numBooks - i - 1; j++) {
+		            if (booksArray[j]->getBookID() > booksArray[j + 1]->getBookID()) {
+		                Book* temp = booksArray[j];
+		                booksArray[j] = booksArray[j + 1];
+		                booksArray[j + 1] = temp;
+		            }
+		        }
+		    }
+			string tempid = I;
+			int first = 0;
+		    int last = numBooks - 1;
+			int mid;
+			bool idExists = false;
+			while (first <= last && !idExists) {
+			    mid = (first + last) / 2;
+			    string bookid = booksArray[mid]->getBookID();
+			    
+			    if(tempid==bookid){
+			    	idExists = true;
+			    
+				}
+				else if (bookid < tempid) {
+				    first = mid + 1;
+				} else {
+				    last = mid - 1;
+				}
+			}
+			if (idExists) {
+			    cout << "\n=>The ID already exists. " << endl;
+			    sleep(2);
+			    addbook();
+			}
+			
+			
+			//move to beginning of file
+//			readfile.clear();
+//			readfile.seekg(0);
+			fflush(stdin);
+			
+			cout << "Name    : ";
+			getline(cin,n);
+			if(name == "0"){
+				cout<<"\n~ Incorrect format!"<<endl;
+				cout << "\nInvalid data! Please re-enter...\n";
+				sleep(2);
+				addbook();
+			} 
+			else{
+				//check whether has same book
+				string tempname;
+				tempname = n;
+				transform(tempname.begin(), tempname.end(), tempname.begin(), ::tolower);
+				for (int i = 0; i < numBooks - 1; i++) {
+			        for (int j = 0; j < numBooks - i - 1; j++) {
+			            if (booksArray[j]->getBookName() > booksArray[j + 1]->getBookName()) {
+			                Book* temp = booksArray[j];
+			                booksArray[j] = booksArray[j + 1];
+			                booksArray[j + 1] = temp;
+			            }
+			        }
+			    }
+				
+				int f = 0;
+			    int l = numBooks - 1;
+				int m;
+				while (f <= l) {
+				    m = (f + l) / 2;
+				    string bookname = booksArray[m]->getBookName();
+				    replace(bookname.begin(), bookname.end(), '%', ' ');
+				    transform(bookname.begin(), bookname.end(), bookname.begin(), ::tolower);
+				    if(tempname==bookname){
+						cout<<"\nThere is a book same name with it"<<endl<<"Do you want to add stock instead of adding new book? [Y/N]: ";
+						cin >> yesno;
+						fflush(stdin);
+						if(yesno =="Y"||yesno == "y"){
+							int addstock;
+							cout<<"\nEnter additional stock: ";
+							cin >> addstock;
+							
+							s += addstock;
+							saveextrastock(s, tempname);
+							cout << "----------------------------------------------------------------------------------------------"<<endl;
+							
+							cout<<"Back to admin menu... "<<endl;
+							sleep(1);
+							adminMenu();
+						}
+						else if(yesno == "N" || yesno == "n"){
+							cout<<endl;
+							break;
+						}
+						else{
+							cout <<"\nInvalid choice. Please re-enter..." << endl;
+							sleep(1);
+							system("cls");
+							addbook();
+						}
+					} else if (bookname < tempname) {
+				        f = m + 1;
+				    } else {
+				        l = m - 1;
+				    }
+				}
+			}
+			delete[] booksArray;
+			
+			cout << "Price   : RM ";
+			cin >> p;
+			if(price <= 0){
+				cout<<"\n~ Price CANNOT be written as NEGATIVE / ZERO value!"<<endl;
+				cout << "\nInvalid data! Please re-enter...\n";
+				sleep(2);
+				addbook();
+			} 
+			
+			cout << "Stock   : ";
+			cin >> s;
+			if(stock <= 0){
+				cout<<"\n~ Stock CANNOT be written as NEGATIVE / ZERO value!"<<endl;
+				cout << "\nInvalid data! Please re-enter...\n";
+				sleep(2);
+				addbook();
+			}
+			fflush(stdin);
+			cout << "Author  : ";
+			getline(cin,a);
+			if(author == "0"){
+				cout<<"~ Incorrect format!"<<endl;
+				cout << "\nInvalid data! Please re-enter...\n";
+				sleep(2);
+				addbook();
+			}
+			fflush(stdin);
+			
+			genre = getGenre(id);
+		}
+			
+			//add
+			ofstream outfile("records/books.txt",ios::app);
+			if(!outfile){
+				cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+				exit(0);
+			}
+			else{
+				replace(I.begin(), I.end(), ' ', '%');
+				replace(a.begin(), a.end(), ' ', '%');
+				replace(g.begin(), g.end(), ' ', '%');
+				
+				outfile <<I <<" "<< n <<" " <<fixed<<setprecision(2)<< p <<" " << s <<" " << a <<" " << g <<endl;
+				outfile.close();
+			}
+			
+		
+		cout << ".............................................................................."<<endl;
+		cout << "Do you want to add another book? [y/n]: ";
+		cin >> choice;
+	}while(choice=='y'||choice=='Y');
+	cout<<"Back to admin menu..."<<endl;
+	sleep(1);
+	//back to admin menu
+	adminMenu();
+}
+
+void saveextrastock(int additional, string tempname){
+	bool found = false;
+	fstream putinfile("records/books.txt", ios::in | ios::out);
+	if (!putinfile) {
+        cout << "Error: Unable to open the file 'books.txt'\n"<< endl;
+        exit(0);
+	}
+	else{
+		
+//		BookLinkedList bl;
+//	    
+//		string id, name, author, genre;
+//		float price;
+//		int stock;
+//		
+//		while (putinfile >> id >> name >> price >> stock >> author >> genre) {
+//            bl.insert(id, name, price, stock, author, genre);
+//            bl.sort();
+//        }
+//        putinfile.clear(); // Clear 
+//        putinfile.seekp(0, ios::beg);
+//                
+//        int numBooks = 0;
+//        Book* currentBook = bl.head;
+//        while (currentBook != NULL) {
+//            numBooks++;
+//            currentBook = currentBook->next;
+//        }
+//        
+//        Book** booksArray = new Book*[numBooks];
+//        currentBook = bl.head;
+//        int index = 0;
+//        while (currentBook != NULL) {
+//            booksArray[index++] = currentBook;
+//            currentBook = currentBook->next;
+//        }
+//        int f = 0;
+//        int l = numBooks - 1;
+//        int m;
+//        
+//        while (f <= l && !found) {
+//            m = (f + l) / 2;
+//            string bookname = booksArray[m]->getBookName();
+// 
+//            replace(bookname.begin(), bookname.end(), '%', ' ');
+//            transform(tempname.begin(), tempname.end(), tempname.begin(), ::tolower);
+//			transform(bookname.begin(), bookname.end(), bookname.begin(), ::tolower);
+//            if (tempname == bookname) {
+//				int currentstock = booksArray[m]->getBookStock();
+//				currentstock += additional;
+//                booksArray[m]->setStock(currentstock);
+//                found = true;
+//            }
+//            else if (bookname < tempname) {
+//                f = m + 1;
+//            }
+//            else {
+//                l = m - 1;
+//            }
+//        }
+//        
+//        // Clean up
+//        delete[] booksArray;
+        
+//        replace(bookname.begin(), bookname.end(), ' ', '%');
+//                putinfile << id << " " << bookname << " " << fixed << setprecision(2) << price << " "
+//                      << currentstock << " " << author << " " << genre << endl;
+    }
+
+    putinfile.close();
+    if(found==true){
+    	cout << "Additional stock updated successfully!" << endl;
+	}
+    
+}
+bool isValidID(const string& id) {
+	if (id.empty()) {
+       return false; // An empty ID is not valid
+    }
+    return isalpha(id[0]);
+}
+//to know genre from id
+string getGenre(const string& id) {
+	if (id.empty()) {
+		return "Invalid ID";
+	}
+		
+	char firstChar = toupper(id[0]); // Convert to uppercase to handle both cases
+		
+	switch (firstChar) {
+		case 'M': return "Mystery";break;
+		case 'N': return "Fiction";break;
+		case 'X': return "Non-fiction";break;
+		case 'P': return "Philosophy";break;
+		case 'C': return "Classics";break;
+		case 'A': return "Action";break;
+		case 'T': return "Thriller";break;
+		case 'R': return "Children";break;
+		case 'H': return "Horror";break;
+		case 'D': return "Dystopian";break;
+		case 'E': return "Detective";break;
+		case 'I': return "Historical";break;
+		case 'F': return "Fantasy";break;
+		case 'L': return "Romance";break;
+		default: return "Unknown"; 
+	}
+}
+
 int main(){
 	Menus client;
-	client.welcomemessage();
     int choice=0;
 	
     while(true){
@@ -1761,10 +2097,6 @@ int main(){
                 {
                     client.userMenu(); // Call the user menu after successful user login
                 }
-                else
-                {
-                	client.welcomemessage();
-				}
                 break;
             case 3:
                 system("cls");
@@ -1772,10 +2104,6 @@ int main(){
                 {
                     client.adminMenu();
                 }
-                else
-                {
-                	client.welcomemessage();
-				}
                 break;
             case 4:
                 exit(0);
