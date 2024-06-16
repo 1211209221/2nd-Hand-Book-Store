@@ -446,6 +446,53 @@ class BookLinkedList {
 		    }
 		}
 		
+		void sortByStock() {
+        // Find the maximum stock value
+        int maxStock = 0;
+        int numEntries = 0;
+        Book* current = head;
+        while (current) {
+            if (current->getBookStock() > maxStock) {
+                maxStock = current->getBookStock();
+            }
+            numEntries++;
+            current = current->next;
+        }
+
+        // Create count array and initialize to 0
+        int* count = new int[maxStock + 1]();
+        current = head;
+        while (current) {
+            count[current->getBookStock()]++;
+            current = current->next;
+        }
+
+        // Change count[i] so that it now contains the position of this stock in the output array
+        for (int i = 1; i <= maxStock; i++) {
+            count[i] += count[i - 1];
+        }
+
+        // Build the sorted array
+        Book** output = new Book*[numEntries];
+        current = head;
+        while (current) {
+            output[count[current->getBookStock()] - 1] = current;
+            count[current->getBookStock()]--;
+            current = current->next;
+        }
+
+        // Reconstruct the linked list in sorted order
+        head = nullptr;
+        for (int i = numEntries - 1; i >= 0; i--) {
+            output[i]->next = head;
+            head = output[i];
+        }
+
+        // Free dynamically allocated arrays
+        delete[] count;
+        delete[] output;
+    }
+		
 		Book* find(string id) {
 	        Book* current = head;
 	        while (current != NULL) {
@@ -810,8 +857,8 @@ class Menus: public Verify, public Book {
 		    cout << "=============================================================================" << endl;
 		    cout << "User Menu > Catalog" << endl;
 		    cout << "-----------------------------------------------------------------------------" << endl;
-			cout <<left<<setw(5)<<"No."<<left<<setw(35)<<"Book Name"<<left<<setw(12)<<"Price"<<left<<setw(5)<<"Stock"<<endl;
-			
+		    cout << left << setw(5) << "No." << left << setw(35) << "Book Name" << left << setw(12) << "Price" << left << setw(5) << "Stock" << endl;
+		
 		    ifstream countFile("records/books.txt");
 		    if (!countFile.is_open()) {
 		        cout << "Error: Unable to open the file 'records/books.txt'\n";
@@ -829,28 +876,71 @@ class Menus: public Verify, public Book {
 		    // Set Book attributes and insert into linked list
 		    while (file >> id >> name >> price >> stock >> author >> genre) {
 		        bookList.insert(id, name, price, stock, author, genre);
-			}
-		    // Display all books from the linked list
-		    bookList.displayAll();
+		    }
+			bookList.displayAll();
+			
+		    bool continueLoop = true;
+		    while (continueLoop) {
 		
-		    cout << "-----------------------------------------------------------------------------" << endl;
-		    cout << "Enter your choice: ";
-		    cin >> choice;
+		        cout << "=============================================================================" << endl;
+		        cout << "[1] Sort by Book Name" << endl;
+		        cout << "[2] Sort by Stock" << endl;
+		        cout << "[3] Rent a Book" << endl;
+		        cout << "Enter your choice: ";
+		        cin >> choice;
 		
-		    if (choice == 0) {
-		        system("cls");
-		        userMenu();
-		    } else if (choice > 0 && choice <= numEntries) {
-		        do{
-					rental(choice, bookList);
-				}while(choice != 0);
-		    } else {
-		        cout << "\nInvalid choice! Please re-enter...\n";
-		        sleep(1);
-		        system("cls");
-		        catalog();
+		        switch (choice) {
+		            case 0:
+		                system("cls");
+		                userMenu();
+		                continueLoop = false;
+		                break;
+		            case 1:
+		                bookList.sort();
+		                system("cls");
+		                cout << "=============================================================================" << endl;
+					    cout << "[0] Back \t\t\t  CATALOG" << endl;
+					    cout << "=============================================================================" << endl;
+					    cout << "User Menu > Catalog > Sorted by Book Name" << endl;
+					    cout << "-----------------------------------------------------------------------------" << endl;
+		    			cout << left << setw(5) << "No." << left << setw(35) << "Book Name" << left << setw(12) << "Price" << left << setw(5) << "Stock" << endl;
+		                bookList.displayAll();
+		                break;
+		            case 2:
+		                bookList.sortByStock();
+		                system("cls");
+		                cout << "=============================================================================" << endl;
+					    cout << "[0] Back \t\t\t  CATALOG" << endl;
+					    cout << "=============================================================================" << endl;
+					    cout << "User Menu > Catalog > Sorted by Stock" << endl;
+					    cout << "-----------------------------------------------------------------------------" << endl;
+		    			cout << left << setw(5) << "No." << left << setw(35) << "Book Name" << left << setw(12) << "Price" << left << setw(5) << "Stock" << endl;
+		                bookList.displayAll();
+		                break;
+		            case 3:
+		                cout << "Enter the book number to rent: ";
+		                cin >> choice;
+		                if (choice > 0 && choice <= numEntries) {
+		                    do {
+		                        rental(choice, bookList);
+		                        cout << "Enter another book number to rent or 0 to go back: ";
+		                        cin >> choice;
+		                    } while (choice != 0);
+		                } else {
+		                    cout << "\nInvalid choice! Please re-enter...\n";
+		                    sleep(1);
+		                    system("cls");
+		                }
+		                break;
+		            default:
+		                cout << "\nInvalid choice! Please re-enter...\n";
+		                sleep(1);
+		                system("cls");
+		                break;
+		        }
 		    }
 		}
+
 		
 		void searchCatalog() {
 		    string keyword;
