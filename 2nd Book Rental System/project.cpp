@@ -482,7 +482,7 @@ class BookLinkedList {
         }
 
         // Reconstruct the linked list in sorted order
-        head = nullptr;
+        head = NULL;
         for (int i = numEntries - 1; i >= 0; i--) {
             output[i]->next = head;
             head = output[i];
@@ -747,7 +747,7 @@ class RentedBook {
 			bookName = name;
 			bookQuantity = quantity;
 			dueDate = date;
-			next = nullptr;
+			next = NULL;
 		}
 
 		string getBookName() {
@@ -770,12 +770,12 @@ class RentedLinkedList {
 	public:
 		RentedLinkedList()
 		{
-			head = nullptr;
-			temp = nullptr;
+			head = NULL;
+			temp = NULL;
 		}
 
 		void addBook(string name, int quantity, string date) {
-			if (head == nullptr) {
+			if (head == NULL) {
                 // Creating the first node
                 head = new RentedBook(name, quantity, date);
                 temp = head;
@@ -818,7 +818,7 @@ class RentedLinkedList {
 			daysDifference = currentDate->tm_mday - specificDate.tm_mday + (currentDate->tm_mon - specificDate.tm_mon) * 30 + (currentDate->tm_year - specificDate.tm_year) * 365;
 			
 			temp = head;
-			while (temp != nullptr) {
+			while (temp != NULL) {
 				cout << left << setw(5) << count++;
 				cout << left << setw(37) << temp->getBookName() << left << setw(9) << temp->getBookQuantity() << left << setw(16) << temp->getDueDate();
 				if (currentDate->tm_year == specificDate.tm_year && currentDate->tm_mon == specificDate.tm_mon && currentDate->tm_mday == specificDate.tm_mday) {
@@ -837,7 +837,7 @@ class RentedLinkedList {
 		}
 
 		~RentedLinkedList() {
-			while (head != nullptr) {
+			while (head != NULL) {
 				RentedBook* bookToDelete = head;
 				head = head->next;
 				delete bookToDelete;
@@ -1001,6 +1001,7 @@ class Menus: public Verify, public Book {
 		        cout << "[1] Sort by Book Name" << endl;
 		        cout << "[2] Sort by Stock" << endl;
 		        cout << "[3] Rent a Book" << endl;
+		        cout << "-----------------------------------------------------------------------------" << endl;
 		        cout << "Enter your choice: ";
 		        cin >> choice;
 		
@@ -1761,15 +1762,6 @@ class Menus: public Verify, public Book {
 				    cout << "User Menu > Cart > Check Out"<<endl;
 				    cout << "-----------------------------------------------------------------------------"<<endl;
 				    cout <<left<<setw(5)<<"No."<<left<<setw(37)<<"Book Name"<<left<<setw(8)<<"Days"<<left<<setw(9)<<"Qty."<<left<<setw(12)<<"Total"<<endl;
-				    while (current != NULL) {
-				        cout << left << setw(5) << ++count;
-				        current->list();
-				        bookGrandTotal += current->getBookTotalPrice();
-				        bookFinalQuantity += current->getBookQuantity();
-				        bookGrandTotal2 += current->getBookTotalPrice();
-				        bookFinalQuantity2 += current->getBookQuantity();
-				        current = current->getNext();
-				    }
 					cartList.display();
 		    		cout << "============================================================================="<<endl;
 				    cout << "Confirm check out? [Y/N]: ";
