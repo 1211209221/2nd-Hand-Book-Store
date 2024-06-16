@@ -927,8 +927,8 @@ class Menus: public Verify, public Book {
 		    cout << "=============================================================================" << endl;
 		    cout << "User Menu > Catalog" << endl;
 		    cout << "-----------------------------------------------------------------------------" << endl;
-            cout << left << setw(5) << "No." << left << setw(35) << "Book Name" << left << setw(12) << "Price" << left << setw(5) << "Stock" << endl;
-
+		    cout << left << setw(5) << "No." << left << setw(35) << "Book Name" << left << setw(12) << "Price" << left << setw(5) << "Stock" << endl;
+		
 		    ifstream countFile("records/books.txt");
 		    if (!countFile.is_open()) {
 		        cout << "Error: Unable to open the file 'records/books.txt'\n";
@@ -946,20 +946,19 @@ class Menus: public Verify, public Book {
 		    // Set Book attributes and insert into linked list
 		    while (file >> id >> name >> price >> stock >> author >> genre) {
 		        bookList.insert(id, name, price, stock, author, genre);
-			}
+		    }
 			bookList.displayAll();
 			
 		    bool continueLoop = true;
-		    while (continueLoop) {
+		    while (continueLoop) {		
+		        cout << "=============================================================================" << endl;
+		        cout << "[1] Sort by Book Name" << endl;
+		        cout << "[2] Sort by Stock" << endl;
+		        cout << "[3] Rent a Book" << endl;
+		        cout << "Enter your choice: ";
+		        cin >> choice;
 		
-		    cout << "=============================================================================" << endl;
-            cout << "[1] Sort by Book Name" << endl;
-            cout << "[2] Sort by Stock" << endl;
-            cout << "[3] Rent a Book" << endl;
-            cout << "Enter your choice: ";
-            cin >> choice;
-		
-		    switch (choice) {
+		        switch (choice) {
 		            case 0:
 		                system("cls");
 		                userMenu();
@@ -1000,15 +999,18 @@ class Menus: public Verify, public Book {
 		                    cout << "\nInvalid choice! Please re-enter...\n";
 		                    sleep(1);
 		                    system("cls");
-		                }
-		                break;
+		                    continueLoop = false;
+		                    catalog();
+		                }		                
 		            default:
 		                cout << "\nInvalid choice! Please re-enter...\n";
 		                sleep(1);
 		                system("cls");
+		                continueLoop = false;
+		                catalog();
 		                break;
-		        }
-		    }
+		     	}
+			}
 		}
 		
 		void searchCatalog() {

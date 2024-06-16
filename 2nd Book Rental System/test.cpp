@@ -508,10 +508,14 @@ class BookLinkedList {
     	Book* find(string name, int num) {
 	        Book* current = head;
 	        while (current != NULL) {
-	            string bookname = current->getBookName();
-	            replace(bookname.begin(), bookname.end(), ' ', '%');
-	            transform(name.begin(), name.end(), name.begin(), ::tolower);
-	            transform(bookname.begin(), bookname.end(), bookname.begin(), ::tolower);
+	        	string bookname = current->getBookName();
+	        	if(num==0){
+	        		replace(bookname.begin(), bookname.end(), '%', ' ');
+	        		replace(name.begin(), name.end(), '%', ' ');
+	            	transform(name.begin(), name.end(), name.begin(), ::tolower);
+	            	transform(bookname.begin(), bookname.end(), bookname.begin(), ::tolower);
+				}
+	        		            
 	            if (name == bookname) {
 	                return current;
 	            }
@@ -2289,8 +2293,7 @@ void Menus::addbook(){
 							cout<<"\nEnter additional stock: ";
 							cin >> addstock;
 							
-							s += addstock;
-							saveextrastock(s, tempname);
+							saveextrastock(addstock, tempname);
 							cout << "----------------------------------------------------------------------------------------------"<<endl;
 							
 							cout<<"Back to admin menu... "<<endl;
@@ -2396,10 +2399,9 @@ void saveextrastock(int additional, string tempname){
         putinfile.seekp(0, ios::beg);
 		
                 
-        Book* book = bl.find(tempname, 1);
+        Book* book = bl.find(tempname, 0);
         if (book != NULL) {
             int currentstock = book->getBookStock();
-            cout << "Current stock for " << tempname << " is: " << currentstock << endl;
             currentstock += additional;
             book->setStock(currentstock);
             found = true;
