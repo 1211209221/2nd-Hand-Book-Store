@@ -59,6 +59,7 @@
     "iosfwd": "cpp",
     "fstream": "cpp",
     "iomanip": "cpp",
-    "algorithm": "cpp"
+    "algorithm": "cpp",
+    "new": "cpp"
   }
 }

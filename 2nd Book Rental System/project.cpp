@@ -233,7 +233,6 @@ public:
     } while (true);
 }
 
-
     string getUsername() {
         return username;
     }
@@ -317,7 +316,19 @@ class Book {
 	    Book() {
 	        next = NULL;
 	    }
-	
+
+		float getoverduefee(){
+			ifstream out("records/fee.txt");
+			if(!out){
+				cout <<"Error: Unable to open the file fee.txt"<<endl;
+				exit(0);
+			}
+			out >> rentf >> overduef >>sumf >>earnrent;
+			out.close();
+			
+			return overduef;
+		}
+
 	    void setdata(string n, double p, int s, string a, string g) {
 		    name = n;
 		    price = p;
@@ -329,6 +340,14 @@ class Book {
 		    replace(author.begin(), author.end(), '%', ' ');
 		    replace(genre.begin(), genre.end(), '%', ' ');
 		}
+
+		void setdatarental(string n,int q) {
+			name = n;
+			quantity = q;
+			
+			replace(name.begin(), name.end(), '%', ' ');
+		}
+
 		void setid(string i){
 			id = i;
 		}
@@ -379,7 +398,7 @@ class Book {
 
 		void details(bool check){
 	    	if(check){
-	    		cout << left << setw(5) << id << left << setw(37) << name << left << "RM " << setw(10) << fixed << setprecision(2) << price << left << setw(5) << stock << left << setw(25) << author << left << setw(15) << genre << endl;
+	    		cout << left << setw(5) << id << left << setw(37) << name << left << "RM " << setw(8) << fixed << setprecision(2) << price << left << setw(7) << stock << left << setw(25) << author << left << setw(15) << genre << endl;
 			}
 		}
 	
@@ -527,6 +546,51 @@ class BookLinkedList {
 	        }
 	        return NULL;
     	}
+
+		//for merge sort id
+	    Book* merge(Book* left, Book* right) {
+		    if (left == NULL) {
+		        return right;
+		    }
+		    if (right == NULL) {
+		        return left;
+		    }
+		
+		    if (left->getBookID() <= right->getBookID()) {
+		        left->next = merge(left->next, right);
+		        return left;
+		    } else {
+		        right->next = merge(left, right->next);
+		        return right;
+		    }
+		}
+
+		Book* getMiddle(Book* head) {
+		    Book* slow = head;
+		    Book* fast = head->next;
+		
+		    while (fast != NULL && fast->next != NULL) {
+		        slow = slow->next;
+		        fast = fast->next->next;
+		    }
+		
+		    Book* middle = slow->next;
+		    slow->next = NULL; // Split the list into two halves
+		    return middle;
+		}
+		
+		void mergeSort(Book** headRef) {
+		    Book* head = *headRef;
+		
+		    if (head == NULL || head->next == NULL) {
+		        return; // Base case: List is empty or has only one element
+		    }
+		
+		    Book* middle = getMiddle(head);
+		    mergeSort(&head);
+		    mergeSort(&middle);
+		    *headRef = merge(head, middle);
+		}
 
 	    void displayAll() {
 	    	int count = 1;
@@ -765,17 +829,7 @@ class RentedBook {
 			next = NULL;
 		}
 
-		string getBookName() {
-			return bookName;
-		}
-
-		int getBookQuantity() {
-			return bookQuantity;
-		}
-
-		string getDueDate() {
-			return dueDate;
-		}
+		friend class RentedLinkedList;
 };
 
 class RentedLinkedList {
@@ -787,6 +841,14 @@ class RentedLinkedList {
 		{
 			head = NULL;
 			temp = NULL;
+		}
+
+		~RentedLinkedList() {
+			while (head != NULL) {
+				RentedBook* bookToDelete = head;
+				head = head->next;
+				delete bookToDelete;
+			}
 		}
 
 		void addBook(string name, int quantity, string date) {
@@ -803,7 +865,7 @@ class RentedLinkedList {
 
 		void listBooks(int num) {
 			string disDateDue;
-			int count = 1, overdueNo = -1, daysDifference = 0;
+			int count = 1, overdueNo = -1, daysDifference = 0, choice;
 			int* overdueNum = new int[num];
 		    int* overdueDays = new int[num];
 
@@ -843,7 +905,7 @@ class RentedLinkedList {
 			temp = head;
 			while (temp != NULL) {
 				cout << left << setw(5) << count++;
-				cout << left << setw(37) << temp->getBookName() << left << setw(9) << temp->getBookQuantity() << left << setw(16) << temp->getDueDate();
+				cout << left << setw(37) << temp->bookName << left << setw(9) << temp->bookQuantity << left << setw(16) << temp->dueDate;
 				if (currentDate->tm_year == specificDate.tm_year && currentDate->tm_mon == specificDate.tm_mon && currentDate->tm_mday == specificDate.tm_mday) {
 					cout << "\033[1;32mActive\033[0m" << endl;
 				}
@@ -857,14 +919,6 @@ class RentedLinkedList {
 				}
 				//r[count-2].setdatarental(disName,disQuantity);
 				temp = temp->next;
-			}
-		}
-
-		~RentedLinkedList() {
-			while (head != NULL) {
-				RentedBook* bookToDelete = head;
-				head = head->next;
-				delete bookToDelete;
 			}
 		}
 };
@@ -888,6 +942,8 @@ class Menus: public Verify, public Book {
 		void deletebook(string code);
 		void fee();
 		void checkrentalrecord();
+		void searchMenu();//for admin
+		void sortMenu();//for admin
 		
 		void userMenu(){
 		    while (true) 
@@ -955,9 +1011,10 @@ class Menus: public Verify, public Book {
 			    cout << "Hello "<< getUsername()<<"! What do you want to do?\n"<<endl;
 		        cout << "1. Add Book\n";
 		        cout << "2. View Book \n";
-		        cout << "3. Search Book [Update & Delete]\n";
-		        cout << "4. Fee Management\n";
-		        cout << "5. View Rental Records\n";
+		        cout << "3. Update Book \n";
+		        cout << "4. Delete Book \n";
+		        cout << "5. Fee Management\n";
+		        cout << "6. View Rental Records\n";
 			    cout << "-----------------------------------------------------------------------------"<<endl;
 				cout << "Enter your choice: ";
 		        cin >> choice;
@@ -975,12 +1032,15 @@ class Menus: public Verify, public Book {
 		        		viewbook();
 		        		break;
 		        	case 3:
-		        		//searchbook();
+		        		//updatebook();
 		        		break;
 		        	case 4:
-		        		//fee();
+		        		//deletebook();
 		        		break;
 		        	case 5:
+		        		//fee();
+		        		break;
+		        	case 6:
 		        		//checkrentalrecord();
 		        		break;
 		            default:
@@ -1967,7 +2027,8 @@ class Menus: public Verify, public Book {
 			filename = "records/rented/" + getUsername() + ".txt";			
 			ifstream inputFile(filename.c_str());
 			string disName, disDateDue, line;
-			int disQuantity, numEntries = 0;
+			int disQuantity, numEntries = 0, overdueNo = -1;
+			char confirmReturn;
 			RentedLinkedList rentedBooks;
 
 			while(getline(inputFile, line)) {
@@ -1986,15 +2047,13 @@ class Menus: public Verify, public Book {
 		    while(inputFile >> disName >> disQuantity >> disDateDue) {
 		    	replace(disName.begin(), disName.end(), '%', ' ');
 				rentedBooks.addBook(disName, disQuantity, disDateDue);
-
 			}
 			if(numEntries == 0) {
 				cout<<"\n\n\t\t\t     No books rented...\n\n"<<endl;
 			} else {
 				rentedBooks.listBooks(numEntries);
 			}
-
-			float fine = 0;//getoverduefee();
+			/*float fine = getoverduefee();
 			cout << "-----------------------------------------------------------------------------"<<endl;
 		    cout << "**DISCLAIMER"<<endl;
 			cout << "  Select a line to return the specific book(s). Late returns are fined"<<endl;
@@ -2157,17 +2216,15 @@ class Menus: public Verify, public Book {
 		    inputFile.close();
 		    delete[] overdueNum;
 		    delete[] overdueDays;
-		}
-		*/
-		}
+		}*/
 };
-
+			
 // function show complete current book list unsorted 
 void currentbooklist(){
 	
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
 	cout << "The Current Book List:" << endl;
-	cout << left << setw(5) << "No." << left << setw(37) << "Book Name" << left << setw(13) << "Price" << left << setw(5) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+	cout << left << setw(5) << "No." << left << setw(37) << "Book Name" << left << setw(8) << "Price" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
 	BookLinkedList b;
 	
 	ifstream readfile("records/books.txt");
@@ -2187,8 +2244,133 @@ void currentbooklist(){
 	
 }
 
+// function show complete current book list (sorted) overloading
+void currentbooklist(BookLinkedList& bl) {
+    cout << "----------------------------------------------------------------------------------------------" << endl;
+    cout << "The Current Book List:" << endl <<endl;
+    cout << left << setw(5) << "No." << left << setw(37) << "Book Name" << left << setw(8) << "Price" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+    bl.completelist();
+}
+
 //functions outside the Menus class are admin part (YS)
 void Menus::viewbook(){
+	char choice;
+	
+	system("cls");
+	fflush(stdin);
+	cout << "=============================================================================================="<<endl;
+	cout << "[0] Back \t\t\t\t  VIEW BOOK"<<endl;
+	cout << "=============================================================================================="<<endl;
+	cout << "Admin Menu > View Book "<<endl;
+	currentbooklist();
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "[1] Sort"<<endl;
+	cout << "[2] Search"<<endl;
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "Enter your choice: ";
+	cin >> choice;
+	
+	if(choice=='0'){
+		cout<<"\nBack to admin menu..."<<endl;
+		sleep(1);
+		adminMenu();
+	}
+	else if(choice == '1'){
+		sortMenu();//for admin
+	}
+	else if(choice == '2'){
+		//searchMenu();//for admin
+	}
+	else{
+		cout<<"\nInvalid choice..."<<endl;
+		sleep(1);
+		viewbook();
+	}
+}
+void Menus::sortMenu(){
+	char choice, ch;
+	
+	system("cls");
+	fflush(stdin);
+	cout << "=============================================================================================="<<endl;
+	cout << "[0] Back \t\t\t\t  SORT BOOK"<<endl;
+	cout << "=============================================================================================="<<endl;
+	cout << "Admin Menu > View Book > Sort Book"<<endl;
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "[1] Sort by ID"<<endl;
+	cout << "[2] Sort by Book Name"<<endl;
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "Enter your choice: ";
+	cin >> choice;
+	
+	BookLinkedList bl;
+	    
+	string id, name, author, genre, I, n, a, g;
+	float price, p;
+	int stock, s;
+	
+	if(choice=='0'){
+		cout<<"\nBack to view book menu..."<<endl;
+		sleep(1);
+		viewbook();
+	}
+	else if(choice == '1'){
+		//open file
+		ifstream readfile("records/books.txt");
+		if(!readfile){
+			cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+			exit(0);
+		}
+		else{
+			while (readfile >> id >> name >> price >> stock >> author >> genre) {
+			    bl.insert(id, name, price, stock, author, genre);
+			}
+			readfile.close();
+		}
+		bl.mergeSort(&bl.head);
+		currentbooklist(bl);
+		
+	}
+	else if(choice == '2'){
+		ifstream readfile("records/books.txt");
+		if(!readfile){
+			cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+			exit(0);
+		}
+		else{
+			while (readfile >> id >> name >> price >> stock >> author >> genre) {
+			    bl.insert(id, name, price, stock, author, genre);
+			    bl.sort();
+			}
+			readfile.close();
+			currentbooklist(bl);
+		}
+	}
+	else{
+		cout<<"\nInvalid choice..."<<endl;
+		sleep(1);
+		sortMenu();
+	}
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "[0] View Book Menu"<<endl;
+	cout << "[1] Search Book Menu"<<endl;
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "Enter your choice: ";
+	cin >> ch;
+	
+	if(ch=='0'){
+		cout<<"Back to view book menu..."<<endl;
+		sleep(1);
+		viewbook();
+	}
+	else if(ch=='1'){
+		
+	}
+	else{
+		cout<<"\nInvalid choice..."<<endl;
+		sleep(1);
+		sortMenu();
+	}
 	
 }
 void Menus::addbook(){
@@ -2503,7 +2685,7 @@ string getGenre(const string& id) {
 		default: return "Unknown"; 
 	}
 }
-
+};
 int main(){
 	Menus client;
     int choice=0;
