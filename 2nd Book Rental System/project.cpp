@@ -25,9 +25,10 @@ void userMenu();
 void adminMenu();
 void catalog();
 int main();
-void saveextrastock(int additional,string tempname);
+bool saveextrastock(int additional,string tempname);
 string getGenre(const string& id);
 bool isValidID(const string& id);
+void currentbooklist();
 
 struct FeeManagement{
 	float fee;
@@ -375,6 +376,12 @@ class Book {
 	    void details() {	        
 	        cout<<left<<setw(35)<<name<<left<<"RM "<<setw(10)<<fixed<<setprecision(2)<<price<<left<<setw(5)<<stock<<endl;
 	    }
+
+		void details(bool check){
+	    	if(check){
+	    		cout << left << setw(5) << id << left << setw(37) << name << left << "RM " << setw(10) << fixed << setprecision(2) << price << left << setw(5) << stock << left << setw(25) << author << left << setw(15) << genre << endl;
+			}
+		}
 	
 	    void list() {
 	        cout << left << setw(35) << name << left << "RM " << setw(10) << fixed << setprecision(2) << price << left << setw(5) << stock << endl;
@@ -505,10 +512,14 @@ class BookLinkedList {
     	Book* find(string name, int num) {
 	        Book* current = head;
 	        while (current != NULL) {
-	            string bookname = current->getBookName();
-	            replace(bookname.begin(), bookname.end(), ' ', '%');
-	            transform(name.begin(), name.end(), name.begin(), ::tolower);
-	            transform(bookname.begin(), bookname.end(), bookname.begin(), ::tolower);
+	        	string bookname = current->getBookName();
+	        	if(num==0){
+	        		replace(bookname.begin(), bookname.end(), '%', ' ');
+	        		replace(name.begin(), name.end(), '%', ' ');
+	            	transform(name.begin(), name.end(), name.begin(), ::tolower);
+	            	transform(bookname.begin(), bookname.end(), bookname.begin(), ::tolower);
+				}
+	        		            
 	            if (name == bookname) {
 	                return current;
 	            }
@@ -523,6 +534,15 @@ class BookLinkedList {
 	        while (current != NULL) {
 	        	cout<<left<<setw(5)<<count++;
 	            current->details();
+	            current = current->next;
+	        }
+	    }
+	    
+	    void completelist() {
+	    	int count = 1;
+	        Book* current = head;
+	        while (current != NULL) {
+	            current->details(true);
 	            current = current->next;
 	        }
 	    }
@@ -934,9 +954,10 @@ class Menus: public Verify, public Book {
 			    cout << "-----------------------------------------------------------------------------"<<endl;
 			    cout << "Hello "<< getUsername()<<"! What do you want to do?\n"<<endl;
 		        cout << "1. Add Book\n";
-		        cout << "2. Search Book [Update & Delete]\n";
-		        cout << "3. Fee Management\n";
-		        cout << "4. View Rental Records\n";
+		        cout << "2. View Book \n";
+		        cout << "3. Search Book [Update & Delete]\n";
+		        cout << "4. Fee Management\n";
+		        cout << "5. View Rental Records\n";
 			    cout << "-----------------------------------------------------------------------------"<<endl;
 				cout << "Enter your choice: ";
 		        cin >> choice;
@@ -951,12 +972,15 @@ class Menus: public Verify, public Book {
 		        		addbook();
 		        		break;
 		        	case 2:
-		        		//searchbook();
+		        		viewbook();
 		        		break;
 		        	case 3:
-		        		//fee();
+		        		//searchbook();
 		        		break;
 		        	case 4:
+		        		//fee();
+		        		break;
+		        	case 5:
 		        		//checkrentalrecord();
 		        		break;
 		            default:
@@ -2138,7 +2162,35 @@ class Menus: public Verify, public Book {
 		}
 };
 
+// function show complete current book list unsorted 
+void currentbooklist(){
+	
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "The Current Book List:" << endl;
+	cout << left << setw(5) << "No." << left << setw(37) << "Book Name" << left << setw(13) << "Price" << left << setw(5) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+	BookLinkedList b;
+	
+	ifstream readfile("records/books.txt");
+    if (!readfile) {
+        cout << "Error: Unable to open the file 'records/books.txt'\n" << endl;
+        exit(0);
+    }
+	string id, name, author, genre;
+    float price;
+    int stock;
+
+    while (readfile >> id >> name >> price >> stock >> author >> genre) {
+        b.insert(id, name, price, stock, author, genre);
+    }
+    readfile.close();
+	b.completelist();
+	
+}
+
 //functions outside the Menus class are admin part (YS)
+void Menus::viewbook(){
+	
+}
 void Menus::addbook(){
 	char choice;
 	string yesno;
@@ -2153,7 +2205,7 @@ void Menus::addbook(){
 		cout << "Admin Menu > Add Book "<<endl;
 		cout << "----------------------------------------------------------------------------------------------"<<endl;
 		cout << "The first letter of ID that corresponds to the genre:"<<endl;
-		cout << left << setw(15) <<"\tM-Mystery" << setw(15) <<"N-Fiction"<< setw(15) <<"X-Non-fiction"<<setw(15) <<"C-Classics"<< setw(15) <<"A-Action"<<endl;
+		cout << left << setw(15) <<"\tM-Mystery" << setw(15) <<"N-Fiction"<< setw(15) <<"B-Non-fiction"<<setw(15) <<"C-Classics"<< setw(15) <<"A-Action"<<endl;
 		cout << left << setw(15) <<"\tT-Thriller"<< setw(15) <<"R-Children"<< setw(15) <<"H-Horror"<< setw(15) <<"D-Dystopian"<< setw(15) <<"I-Historical"<<endl;
 		cout << left << setw(15) <<"\tF-Fantasy" << setw(15) <<"L-Romance"<< setw(15) <<"P-Philosophy"<< setw(15) <<"E-Detective"<<endl;
 		cout << "----------------------------------------------------------------------------------------------"<<endl;
@@ -2188,6 +2240,17 @@ void Menus::addbook(){
 				addbook();
 			}
 			
+			while(readfile >> id >> name >> price >> stock >> author >> genre){
+				if(I==id){
+					cout<<"\n=>The ID already exists. "<<endl;
+					sleep(2);
+			    	addbook();
+							
+				}
+			}
+			fflush(stdin);
+			readfile.clear();
+			readfile.seekg(0);
 			
 			while (readfile >> id >> name >> price >> stock >> author >> genre) {
 		        bl.insert(id, name, price, stock, author, genre);
@@ -2209,45 +2272,6 @@ void Menus::addbook(){
 		        currentBook = currentBook->next;
 		    }
 			
-			for (int i = 0; i < numBooks - 1; i++) {
-		        for (int j = 0; j < numBooks - i - 1; j++) {
-		            if (booksArray[j]->getBookID() > booksArray[j + 1]->getBookID()) {
-		                Book* temp = booksArray[j];
-		                booksArray[j] = booksArray[j + 1];
-		                booksArray[j + 1] = temp;
-		            }
-		        }
-		    }
-			string tempid = I;
-			int first = 0;
-		    int last = numBooks - 1;
-			int mid;
-			bool idExists = false;
-			while (first <= last && !idExists) {
-			    mid = (first + last) / 2;
-			    string bookid = booksArray[mid]->getBookID();
-			    
-			    if(tempid==bookid){
-			    	idExists = true;
-			    
-				}
-				else if (bookid < tempid) {
-				    first = mid + 1;
-				} else {
-				    last = mid - 1;
-				}
-			}
-			if (idExists) {
-			    cout << "\n=>The ID already exists. " << endl;
-			    sleep(2);
-			    addbook();
-			}
-			
-			
-			//move to beginning of file
-//			readfile.clear();
-//			readfile.seekg(0);
-			fflush(stdin);
 			
 			cout << "Name    : ";
 			getline(cin,n);
@@ -2289,12 +2313,25 @@ void Menus::addbook(){
 							cout<<"\nEnter additional stock: ";
 							cin >> addstock;
 							
-							saveextrastock(addstock, tempname);
+							bool success = saveextrastock(addstock, tempname);
+							if(success){
+								cout<<"\nBook stock is updated successfully..."<<endl;
+							}
+							//show current book likst
+							sleep(2);
+							currentbooklist();
 							cout << "----------------------------------------------------------------------------------------------"<<endl;
-							
-							cout<<"Back to admin menu... "<<endl;
-							sleep(1);
-							adminMenu();
+							cout << "Do you want to add another book? [y/n]: ";
+							cin >> choice;
+							if(choice=='y'||choice=='Y'){
+								addbook();
+							} 
+							else{
+								cout<<"Back to admin menu..."<<endl;
+								sleep(1);
+								//back to admin menu
+								adminMenu();
+							}
 						}
 						else if(yesno == "N" || yesno == "n"){
 							cout<<endl;
@@ -2343,7 +2380,7 @@ void Menus::addbook(){
 			}
 			fflush(stdin);
 			
-			genre = getGenre(id);
+			g = getGenre(id);
 		}
 			
 			//add
@@ -2353,7 +2390,7 @@ void Menus::addbook(){
 				exit(0);
 			}
 			else{
-				replace(I.begin(), I.end(), ' ', '%');
+				replace(n.begin(), n.end(), ' ', '%');
 				replace(a.begin(), a.end(), ' ', '%');
 				replace(g.begin(), g.end(), ' ', '%');
 				
@@ -2361,18 +2398,19 @@ void Menus::addbook(){
 				outfile.close();
 			}
 			
-		
+		cout << "The book is added successfully!"<<endl;
+		currentbooklist();
 		cout << ".............................................................................."<<endl;
 		cout << "Do you want to add another book? [y/n]: ";
 		cin >> choice;
 	}while(choice=='y'||choice=='Y');
-	cout<<"Back to admin menu..."<<endl;
+	cout<<"\nBack to admin menu..."<<endl;
 	sleep(1);
 	//back to admin menu
 	adminMenu();
 }
 
-void saveextrastock(int additional, string tempname){
+bool saveextrastock(int additional, string tempname){
 	bool found = false;
 	fstream putinfile("records/books.txt", ios::in | ios::out);
 	if (!putinfile) {
@@ -2395,10 +2433,9 @@ void saveextrastock(int additional, string tempname){
         putinfile.seekp(0, ios::beg);
 		
                 
-        Book* book = bl.find(tempname, 1);
+        Book* book = bl.find(tempname, 0);
         if (book != NULL) {
             int currentstock = book->getBookStock();
-            cout << "Current stock for " << tempname << " is: " << currentstock << endl;
             currentstock += additional;
             book->setStock(currentstock);
             found = true;
@@ -2424,9 +2461,9 @@ void saveextrastock(int additional, string tempname){
         }
 
 		if (found) {
-		    cout << "Additional stock updated successfully!" << endl;
+		    return true;
 	    } else {
-		    cout << "Book not found!" << endl;
+		    return false;
 	    }
     }
 
@@ -2451,7 +2488,7 @@ string getGenre(const string& id) {
 	switch (firstChar) {
 		case 'M': return "Mystery";break;
 		case 'N': return "Fiction";break;
-		case 'X': return "Non-fiction";break;
+		case 'B': return "Non-fiction";break;
 		case 'P': return "Philosophy";break;
 		case 'C': return "Classics";break;
 		case 'A': return "Action";break;
