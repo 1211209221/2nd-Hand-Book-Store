@@ -132,7 +132,6 @@ public:
     }
 };
 
-
 class Info {
 private:
     string specialCharacters;
@@ -303,8 +302,6 @@ public:
         main();
     }
 };
-
-
 
 class Book {
 	private:
@@ -606,7 +603,6 @@ public:
     }
 };
 
-
 class Cart {
 private:
     string bookName;
@@ -657,7 +653,6 @@ public:
         cout << left << setw(38) << bookName << left << setw(8) << bookDuration << left << setw(8) << bookQuantity << left << "RM " << setw(10) << fixed << setprecision(2) << getBookTotalPrice() << endl;
     }
 };
-
 
 class CartLinkedList {
 private:
@@ -786,29 +781,37 @@ class RentedLinkedList {
             }
 		}
 
-		void listBooks() {
+		void listBooks(int num) {
 			string disDateDue;
 			int count = 1, overdueNo = -1, daysDifference = 0;
+			int* overdueNum = new int[num];
+		    int* overdueDays = new int[num];
 
 			//declaring variables for date time
 			time_t currentTime = time(0);
+
 			//tm is human readable format, localtime convert time_t to tm
 			tm* currentDate = localtime(&currentTime);
+
 			//declaring due date to tm format, {0} is to initialize all values to 0
 			tm dueDate = {};
+
 			//variable use to separate duedate into day, month, year
 			istringstream ss(disDateDue);
 			string dayStr, monthStr, yearStr;
 			getline(ss, dayStr, '/');
 			getline(ss, monthStr, '/');
 			getline(ss, yearStr);
+
 			//to convert string to int
 			int day, month, year;
 			istringstream(dayStr) >> day;
 			istringstream(monthStr) >> month;
 			istringstream(yearStr) >> year;
+
 			//declaring datatype tm, {0} is to initialize all values to 0
 			tm specificDate = {0};
+
 			//setting the values of specific date
 			specificDate.tm_mday = day;
 			specificDate.tm_mon = month - 1;
@@ -816,7 +819,7 @@ class RentedLinkedList {
 			
 			//To calculate the difference between current date and due date
 			daysDifference = currentDate->tm_mday - specificDate.tm_mday + (currentDate->tm_mon - specificDate.tm_mon) * 30 + (currentDate->tm_year - specificDate.tm_year) * 365;
-			
+
 			temp = head;
 			while (temp != NULL) {
 				cout << left << setw(5) << count++;
@@ -826,12 +829,13 @@ class RentedLinkedList {
 				}
 				else if (difftime(currentTime, mktime(&specificDate)) > 0) {
 					cout << "\033[1;31mOverdue\033[0m"<< endl;
-					//overdueNum[overdueNo++] = count-1;
-					//overdueDays[overdueNo] = daysDifference;
+					overdueNum[overdueNo++] = count-1;
+					overdueDays[overdueNo] = daysDifference;
 				}
 				else{
 					cout << "\033[1;32mActive\033[0m" << endl;
 				}
+				//r[count-2].setdatarental(disName,disQuantity);
 				temp = temp->next;
 			}
 		}
@@ -1939,10 +1943,13 @@ class Menus: public Verify, public Book {
 			filename = "records/rented/" + getUsername() + ".txt";			
 			ifstream inputFile(filename.c_str());
 			string disName, disDateDue, line;
-			int disQuantity, numEntries = 0, count = 1, overdueNo = -1, daysDifference = 0;
-			tm* currentDate;
-			tm specificDate;
-			time_t currentTime;
+			int disQuantity, numEntries = 0;
+			RentedLinkedList rentedBooks;
+
+			while(getline(inputFile, line)) {
+		        numEntries++;
+		    }
+			inputFile.close();	
 
 			cout << "============================================================================="<<endl;
 		    cout << "[0] Back \t\t\tRENTED BOOKS"<<endl;
@@ -1950,15 +1957,6 @@ class Menus: public Verify, public Book {
 		    cout << "User Menu > Rented Books"<<endl;
 		    cout << "-----------------------------------------------------------------------------"<<endl;
 		    cout <<left<<setw(5)<<"No."<<left<<setw(37)<<"Book Name"<<left<<setw(9)<<"Qty."<<left<<setw(16)<<"Due Date"<<left<<setw(12)<<"Status"<<endl;
-		    RentedLinkedList rentedBooks;
-
-			while(getline(inputFile, line)) {
-		        numEntries++;
-		    }
-			inputFile.close();
-
-		    int* overdueNum = new int[numEntries];
-		    int* overdueDays = new int[numEntries];
 		    
 			inputFile.open(filename.c_str());
 		    while(inputFile >> disName >> disQuantity >> disDateDue) {
@@ -1969,25 +1967,10 @@ class Menus: public Verify, public Book {
 			if(numEntries == 0) {
 				cout<<"\n\n\t\t\t     No books rented...\n\n"<<endl;
 			} else {
-				rentedBooks.listBooks();
+				rentedBooks.listBooks(numEntries);
 			}
-			/*
-			
-			if (currentDate->tm_year == specificDate.tm_year && currentDate->tm_mon == specificDate.tm_mon && currentDate->tm_mday == specificDate.tm_mday) {
-					cout << "\033[1;32mActive\033[0m" << endl;
-				}
-				else if (difftime(currentTime, mktime(&specificDate)) > 0) {
-					cout << "\033[1;31mOverdue\033[0m"<< endl;
-					//overdueNum[overdueNo++] = count-1;
-					overdueDays[overdueNo] = daysDifference;
-				}
-				else{
-					cout << "\033[1;32mActive\033[0m" << endl;
-				}
-				//r[count-2].setdatarental(disName,disQuantity);*/
-			
-			
-			/*float fine = 0;//getoverduefee();
+
+			float fine = 0;//getoverduefee();
 			cout << "-----------------------------------------------------------------------------"<<endl;
 		    cout << "**DISCLAIMER"<<endl;
 			cout << "  Select a line to return the specific book(s). Late returns are fined"<<endl;
