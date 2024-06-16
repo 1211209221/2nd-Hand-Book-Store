@@ -446,7 +446,7 @@ class BookLinkedList {
 		    }
 		}
 		
-		void sortByStock() {
+        void sortByStock() {
         // Find the maximum stock value
         int maxStock = 0;
         int numEntries = 0;
@@ -492,7 +492,8 @@ class BookLinkedList {
         delete[] count;
         delete[] output;
     }
-		
+
+		//for id overloading function
 		Book* find(string id) {
 	        Book* current = head;
 	        while (current != NULL) {
@@ -502,7 +503,22 @@ class BookLinkedList {
 	            current = current->next;
 	        }
 	        return NULL;
-    }
+    	}
+    	//for name overloading function
+    	Book* find(string name, int num) {
+	        Book* current = head;
+	        while (current != NULL) {
+	            string bookname = current->getBookName();
+	            replace(bookname.begin(), bookname.end(), ' ', '%');
+	            transform(name.begin(), name.end(), name.begin(), ::tolower);
+	            transform(bookname.begin(), bookname.end(), bookname.begin(), ::tolower);
+	            if (name == bookname) {
+	                return current;
+	            }
+	            current = current->next;
+	        }
+	        return NULL;
+    	}
 
 	    void displayAll() {
 	    	int count = 1;
@@ -717,16 +733,71 @@ public:
     }
 };
 
-/*class RentedLinkedlist {
+class RentedBook {
+	private:
+		string bookName;
+		int bookQuantity;
+		string dueDate;
+		RentedBook* next;
+
 	public:
-		struct Node
-		{
-			Book book;
-			Node* next;
-		};
-		Node *head, *temp, *tail, *prev; 
-		
-};*/
+		RentedBook(string name, int quantity, string date) : bookName(name), bookQuantity(quantity), dueDate(date), next(nullptr) {}
+
+		string getBookName() const {
+			return bookName;
+		}
+
+		int getBookQuantity() const {
+			return bookQuantity;
+		}
+
+		string getDueDate() const {
+			return dueDate;
+		}
+
+		RentedBook* getNext() const {
+			return next;
+		}
+
+		void setNext(RentedBook* n) {
+			next = n;
+		}
+
+        void list() const {
+            cout << left << setw(38) << bookName << left << setw(8) << bookQuantity << left << setw(17) << dueDate << endl;
+        }
+};
+
+class RentedLinkedList {
+	private:
+		RentedBook* head;
+
+	public:
+		RentedLinkedList() : head(nullptr) {}
+
+		void addBook(string name, int quantity, string date) {
+			RentedBook* newBook = new RentedBook(name, quantity, date);
+			newBook->setNext(head);
+			head = newBook;
+		}
+
+		void listBooks() const {
+			RentedBook* current = head;
+			while (current != nullptr) {
+				current->list();
+				current = current->getNext();
+			}
+		}
+
+		// Don't forget to add a destructor to delete the linked list
+		~RentedLinkedList() {
+			while (head != nullptr) {
+				RentedBook* bookToDelete = head;
+				head = head->getNext();
+				delete bookToDelete;
+			}
+		}
+};
 
 class Menus: public Verify, public Book {
 	public:
@@ -846,7 +917,6 @@ class Menus: public Verify, public Book {
 		    }
 		}
 		
-		
 		void catalog() {
 		    string id, name, author, genre, line;
 		    double price;
@@ -857,8 +927,8 @@ class Menus: public Verify, public Book {
 		    cout << "=============================================================================" << endl;
 		    cout << "User Menu > Catalog" << endl;
 		    cout << "-----------------------------------------------------------------------------" << endl;
-		    cout << left << setw(5) << "No." << left << setw(35) << "Book Name" << left << setw(12) << "Price" << left << setw(5) << "Stock" << endl;
-		
+            cout << left << setw(5) << "No." << left << setw(35) << "Book Name" << left << setw(12) << "Price" << left << setw(5) << "Stock" << endl;
+
 		    ifstream countFile("records/books.txt");
 		    if (!countFile.is_open()) {
 		        cout << "Error: Unable to open the file 'records/books.txt'\n";
@@ -876,20 +946,20 @@ class Menus: public Verify, public Book {
 		    // Set Book attributes and insert into linked list
 		    while (file >> id >> name >> price >> stock >> author >> genre) {
 		        bookList.insert(id, name, price, stock, author, genre);
-		    }
+			}
 			bookList.displayAll();
 			
 		    bool continueLoop = true;
 		    while (continueLoop) {
 		
-		        cout << "=============================================================================" << endl;
-		        cout << "[1] Sort by Book Name" << endl;
-		        cout << "[2] Sort by Stock" << endl;
-		        cout << "[3] Rent a Book" << endl;
-		        cout << "Enter your choice: ";
-		        cin >> choice;
+		    cout << "=============================================================================" << endl;
+            cout << "[1] Sort by Book Name" << endl;
+            cout << "[2] Sort by Stock" << endl;
+            cout << "[3] Rent a Book" << endl;
+            cout << "Enter your choice: ";
+            cin >> choice;
 		
-		        switch (choice) {
+		    switch (choice) {
 		            case 0:
 		                system("cls");
 		                userMenu();
@@ -940,7 +1010,6 @@ class Menus: public Verify, public Book {
 		        }
 		    }
 		}
-
 		
 		void searchCatalog() {
 		    string keyword;
@@ -1825,8 +1894,6 @@ class Menus: public Verify, public Book {
 				}
 			}
 		}
-
-		
 		
 		void rented(){
 			int choice;
@@ -1841,8 +1908,8 @@ class Menus: public Verify, public Book {
 		    cout << "User Menu > Rented Books"<<endl;
 		    cout << "-----------------------------------------------------------------------------"<<endl;
 		    cout <<left<<setw(5)<<"No."<<left<<setw(37)<<"Book Name"<<left<<setw(9)<<"Qty."<<left<<setw(16)<<"Due Date"<<left<<setw(12)<<"Status"<<endl;
-		    
-			//need to remove if success
+		    RentedLinkedList rentedBooks;
+			/*need to remove if success
 			while(getline(inputFile, line)) {
 		        numEntries++;
 		    }
@@ -1852,7 +1919,7 @@ class Menus: public Verify, public Book {
 		    int* overdueNum = new int[numEntries];
 		    int* overdueDays = new int[numEntries];
 		    
-		    inputFile.open(filename.c_str());
+		    inputFile.open(filename.c_str());*/
 		    while(inputFile >> disName >> disQuantity >> disDateDue) {
 		    	replace(disName.begin(), disName.end(), '%', ' ');
 				//declaring variables for date time
@@ -1878,11 +1945,13 @@ class Menus: public Verify, public Book {
 			    specificDate.tm_mday = day;
 			    specificDate.tm_mon = month - 1;
 			    specificDate.tm_year = year - 1900;
-        	
+				rentedBooks.addBook(disName, disQuantity, disDateDue);
+				// Now, you can list the rented books
+				rentedBooks.listBooks();
 		    	cout<<left<<setw(5)<<count++;
 				cout<<left<<setw(37)<<disName<<" "<<left<<setw(6)<<disQuantity<<" "<<left<<setw(17)<<disDateDue;
 				
-				int daysDifference = currentDate->tm_mday - specificDate.tm_mday + (currentDate->tm_mon - specificDate.tm_mon) * 30 + (currentDate->tm_year - specificDate.tm_year) * 365;
+				/*int daysDifference = currentDate->tm_mday - specificDate.tm_mday + (currentDate->tm_mon - specificDate.tm_mon) * 30 + (currentDate->tm_year - specificDate.tm_year) * 365;
 				if (currentDate->tm_year == specificDate.tm_year && currentDate->tm_mon == specificDate.tm_mon && currentDate->tm_mday == specificDate.tm_mday) {
 					cout << "\033[1;32mActive\033[0m" << endl;
 				}
@@ -1894,12 +1963,12 @@ class Menus: public Verify, public Book {
 				else{
 				    cout << "\033[1;32mActive\033[0m" << endl;
 				}
-				//r[count-2].setdatarental(disName,disQuantity);
+				//r[count-2].setdatarental(disName,disQuantity);*/
 				
 			
 			}
 			
-			
+			/*
 			if(numEntries == 0){
 				cout<<"\n\n\t\t\t     No books rented...\n\n"<<endl;
 			}
@@ -2066,6 +2135,8 @@ class Menus: public Verify, public Book {
 		    inputFile.close();
 		    delete[] overdueNum;
 		    delete[] overdueDays;
+		}
+		*/
 		}
 };
 
@@ -2313,70 +2384,57 @@ void saveextrastock(int additional, string tempname){
 	}
 	else{
 		
-//		BookLinkedList bl;
-//	    
-//		string id, name, author, genre;
-//		float price;
-//		int stock;
-//		
-//		while (putinfile >> id >> name >> price >> stock >> author >> genre) {
-//            bl.insert(id, name, price, stock, author, genre);
-//            bl.sort();
-//        }
-//        putinfile.clear(); // Clear 
-//        putinfile.seekp(0, ios::beg);
-//                
-//        int numBooks = 0;
-//        Book* currentBook = bl.head;
-//        while (currentBook != NULL) {
-//            numBooks++;
-//            currentBook = currentBook->next;
-//        }
-//        
-//        Book** booksArray = new Book*[numBooks];
-//        currentBook = bl.head;
-//        int index = 0;
-//        while (currentBook != NULL) {
-//            booksArray[index++] = currentBook;
-//            currentBook = currentBook->next;
-//        }
-//        int f = 0;
-//        int l = numBooks - 1;
-//        int m;
-//        
-//        while (f <= l && !found) {
-//            m = (f + l) / 2;
-//            string bookname = booksArray[m]->getBookName();
-// 
-//            replace(bookname.begin(), bookname.end(), '%', ' ');
-//            transform(tempname.begin(), tempname.end(), tempname.begin(), ::tolower);
-//			transform(bookname.begin(), bookname.end(), bookname.begin(), ::tolower);
-//            if (tempname == bookname) {
-//				int currentstock = booksArray[m]->getBookStock();
-//				currentstock += additional;
-//                booksArray[m]->setStock(currentstock);
-//                found = true;
-//            }
-//            else if (bookname < tempname) {
-//                f = m + 1;
-//            }
-//            else {
-//                l = m - 1;
-//            }
-//        }
-//        
-//        // Clean up
-//        delete[] booksArray;
+		BookLinkedList bl;
+	    
+		string id, name, author, genre;
+		float price;
+		int stock;
+		
+		while (putinfile >> id >> name >> price >> stock >> author >> genre) {
+            bl.insert(id, name, price, stock, author, genre);
+        }
         
-//        replace(bookname.begin(), bookname.end(), ' ', '%');
-//                putinfile << id << " " << bookname << " " << fixed << setprecision(2) << price << " "
-//                      << currentstock << " " << author << " " << genre << endl;
+        putinfile.clear();
+        putinfile.seekp(0, ios::beg);
+		
+                
+        Book* book = bl.find(tempname, 1);
+        if (book != NULL) {
+            int currentstock = book->getBookStock();
+            cout << "Current stock for " << tempname << " is: " << currentstock << endl;
+            currentstock += additional;
+            book->setStock(currentstock);
+            found = true;
+        }
+        
+        // Write the updated linked list back to the file
+        Book* currentBook = bl.head;
+        putinfile.seekp(0, ios::beg);
+        while (currentBook != NULL) {
+        	
+        	string bookName = currentBook->getBookName();
+            replace(bookName.begin(), bookName.end(), ' ', '%');
+            string bookAuthor = currentBook->getBookAuthor();
+            replace(bookAuthor.begin(), bookAuthor.end(), ' ', '%');
+            string bookGenre = currentBook->getBookGenre();
+            replace(bookGenre.begin(), bookGenre.end(), ' ', '%');
+            
+            putinfile << currentBook->getBookID() << " " << bookName << " "
+                      << fixed << setprecision(2) << currentBook->getBookPrice() << " "
+                      << currentBook->getBookStock() << " " << bookAuthor << " "
+                      << bookGenre << endl;
+            currentBook = currentBook->next;
+        }
+
+		if (found) {
+		    cout << "Additional stock updated successfully!" << endl;
+	    } else {
+		    cout << "Book not found!" << endl;
+	    }
     }
 
     putinfile.close();
-    if(found==true){
-    	cout << "Additional stock updated successfully!" << endl;
-	}
+ 
     
 }
 bool isValidID(const string& id) {
