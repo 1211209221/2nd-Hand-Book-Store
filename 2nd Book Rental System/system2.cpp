@@ -257,7 +257,8 @@ public:
             }
 
             string uname, pwd;
-            fflush(stdin);
+            //fflush(stdin);
+			cin.ignore();
             cout << "Enter username: ";
             getline(cin, uname);
             cout << "Enter password: ";

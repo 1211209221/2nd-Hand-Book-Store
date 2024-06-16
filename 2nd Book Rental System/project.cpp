@@ -177,7 +177,8 @@ public:
         cout << "\t\t\t      USER REGISTRATION" << endl;
         cout << "=============================================================================" << endl;
 
-        fflush(stdin);
+        //fflush(stdin);
+		cin.ignore();
         cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
         cout << "Enter username: ";
         getline(cin, username);
@@ -276,7 +277,8 @@ public:
             }
             cout << "=============================================================================" << endl;
 
-            fflush(stdin);
+            //fflush(stdin);
+			cin.ignore();
             string uname, pwd;
             cout << "Enter username: ";
             getline(cin, uname);
@@ -740,7 +742,7 @@ class Menus: public Verify, public Book {
 		                break;
 		            case 5:
 						system("cls");
-
+						//viewReceipt();
 						break;    
 		            default:
 		                cout << "\nInvalid choice! Please re-enter...\n";
@@ -1734,6 +1736,8 @@ class Menus: public Verify, public Book {
 			}
 		}
 
+		
+		
 		void rented(){
 			int choice;
 			filename = "records/rented/" + getUsername() + ".txt";			
