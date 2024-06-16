@@ -1175,7 +1175,6 @@ class Menus: public Verify, public Book {
 
 			    
 				int searchagain;
-    				cout << "-----------------------------------------------------------------------------" << endl;
         			cout << "\n\n\t\t\t     No results found.\n\n"<<endl;
         			cout << "-----------------------------------------------------------------------------" << endl;
 					cout << "[1] Search again"<<endl;
