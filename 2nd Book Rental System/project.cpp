@@ -829,6 +829,14 @@ class RentedBook {
 			next = NULL;
 		}
 
+		int getBookQuantity() {
+            return bookQuantity;
+        }
+
+        string getBookName() {
+            return bookName;
+        }
+
 		friend class RentedLinkedList;
 };
 
@@ -863,7 +871,73 @@ class RentedLinkedList {
             }
 		}
 
-		void listBooks(int num) {
+		vector<pair<int, int> > listBooks(int num) {
+            string disDateDue;
+            int count = 1;
+            int daysDifference = 0;
+            vector<pair<int, int> > overdueBooks;
+
+            // Declaring variables for date time
+            time_t currentTime = time(0);
+
+            // tm is human readable format, localtime convert time_t to tm
+            tm* currentDate = localtime(&currentTime);
+
+            temp = head;
+            while (temp != NULL) {
+                // Separating due date into day, month, year
+                istringstream ss(temp->dueDate);
+                string dayStr, monthStr, yearStr;
+                getline(ss, dayStr, '/');
+                getline(ss, monthStr, '/');
+                getline(ss, yearStr);
+
+                // Converting string to int
+                int day, month, year;
+                istringstream(dayStr) >> day;
+                istringstream(monthStr) >> month;
+                istringstream(yearStr) >> year;
+
+                // Declaring datatype tm, {0} is to initialize all values to 0
+                tm specificDate = {0};
+
+                // Setting the values of specific date
+                specificDate.tm_mday = day;
+                specificDate.tm_mon = month - 1;
+                specificDate.tm_year = year - 1900;
+                
+                // To calculate the difference between current date and due date
+                daysDifference = currentDate->tm_mday - specificDate.tm_mday + (currentDate->tm_mon - specificDate.tm_mon) * 30 + (currentDate->tm_year - specificDate.tm_year) * 365;
+
+                cout << left << setw(5) << count++;
+                cout << left << setw(37) << temp->bookName << left << setw(9) << temp->bookQuantity << left << setw(16) << temp->dueDate;
+                if (currentDate->tm_year == specificDate.tm_year && currentDate->tm_mon == specificDate.tm_mon && currentDate->tm_mday == specificDate.tm_mday) {
+                    cout << "\033[1;32mActive\033[0m" << endl;
+                }
+                else if (difftime(currentTime, mktime(&specificDate)) > 0) {
+                    cout << "\033[1;31mOverdue\033[0m"<< endl;
+                    overdueBooks.push_back(make_pair(count-1, daysDifference));
+                }
+                else {
+                    cout << "\033[1;32mActive\033[0m" << endl;
+                }
+                temp = temp->next;
+            }
+
+            return overdueBooks;
+        }
+
+		RentedBook* getBookByIndex(int index) {
+            int count = 0;
+            temp = head;
+            while (temp != NULL && count < index) {
+                temp = temp->next;
+                count++;
+            }
+            return temp;
+        }
+
+		/*void listBooks(int num) {
 			string disDateDue;
 			int count = 1, overdueNo = -1, daysDifference = 0, choice;
 			int* overdueNum = new int[num];
@@ -920,7 +994,7 @@ class RentedLinkedList {
 				//r[count-2].setdatarental(disName,disQuantity);
 				temp = temp->next;
 			}
-		}
+		}*/
 };
 
 class Menus: public Verify, public Book {
@@ -2048,56 +2122,132 @@ class Menus: public Verify, public Book {
 		    	replace(disName.begin(), disName.end(), '%', ' ');
 				rentedBooks.addBook(disName, disQuantity, disDateDue);
 			}
+			vector<pair<int, int> > overdueBooks;
 			if(numEntries == 0) {
 				cout<<"\n\n\t\t\t     No books rented...\n\n"<<endl;
 			} else {
-				rentedBooks.listBooks(numEntries);
+				overdueBooks = rentedBooks.listBooks(numEntries);
 			}
-			/*float fine = getoverduefee();
+			float fine = getoverduefee();
 			cout << "-----------------------------------------------------------------------------"<<endl;
-		    cout << "**DISCLAIMER"<<endl;
+			cout << "**DISCLAIMER"<<endl;
 			cout << "  Select a line to return the specific book(s). Late returns are fined"<<endl;
 			cout << "  RM "<<fixed<<setprecision(2)<<fine<<"/day for each overdue book."<<endl;
 			cout << "-----------------------------------------------------------------------------"<<endl;
-		    cout << "Enter your choice: ";
-		    cin>>choice;
-		    if(numEntries == 0 && choice != 0){
-				cout<<"\nNo books rented! Please try again later..."<<endl;
-		    	sleep(2);
+			cout << "Enter your choice: ";
+			cin >> choice;
+
+			if(numEntries == 0 && choice != 0) {
+				cout << "\nNo books rented! Please try again later..." << endl;
+				sleep(2);
 				system("cls");
-				rented();
+				cout << "Recall Function" << endl;
+				// rented();
 			}
-		    if(choice == 0){
-		    	system("cls");
-		        userMenu();
-			} 
-			else if(choice > 0 && choice <= numEntries){
+			if(choice == 0) {
+				system("cls");
+				// userMenu();
+				cout << "Return to main" << endl;
+			}
+			else if(choice > 0 && choice <= numEntries) {
 				char confirmReturn;
 				int overdue = 0;
 				cout << "-----------------------------------------------------------------------------"<<endl;
-			    for (int i = -1; i < overdueNo; ++i) {
-			        if (overdueNum[i] == choice) {
-			            cout<<"Overdue by "<<overdueDays[i+1]<<" day(s). Total pentaly fee is RM "<<fixed<<setprecision(2)<<overdueDays[i+1]*fine*r[choice-1].getBookQuantity()<<"."<<endl;
-			            if(r[choice-1].getBookQuantity()>1){
-				        	cout << "Pay penalty fee and return " << r[choice-1].getBookQuantity() << " copies of '" << r[choice-1].getBookName() << "'?" << endl;
-						}
-						else if(r[choice-1].getBookQuantity()==1){
-							cout<<"Pay penalty fee and return "<<r[choice-1].getBookQuantity()<<" copy of '"<<r[choice-1].getBookName()<<"'?"<<endl;
+
+				for (size_t i = 0; i < overdueBooks.size(); ++i) {
+					if (overdueBooks[i].first == choice) {
+						cout << "Overdue by " << overdueBooks[i].second << " day(s). Total penalty fee is RM " << fixed << setprecision(2) << overdueBooks[i].second * fine << "." << endl;
+						RentedBook* book = rentedBooks.getBookByIndex(choice - 1);
+						if(book->getBookQuantity() > 1) {
+							cout << "Pay penalty fee and return " << book->getBookQuantity() << " copies of '" << book->getBookName() << "'?" << endl;
+						} else if(book->getBookQuantity() == 1) {
+							cout << "Pay penalty fee and return " << book->getBookQuantity() << " copy of '" << book->getBookName() << "'?" << endl;
 						}
 						overdue = 1;
-			        }
-		    	}
-		    	if(overdue == 0){
-		    		if(r[choice-1].getBookQuantity()>1){
-			        	cout << "Return " << r[choice-1].getBookQuantity() << " copies of '" << r[choice-1].getBookName() << "'?" << endl;
 					}
-					else if(r[choice-1].getBookQuantity()==1){
-						cout<<"Return "<<r[choice-1].getBookQuantity()<<" copy of '"<<r[choice-1].getBookName()<<"'?"<<endl;
+				}
+
+				if(overdue == 0){
+					RentedBook* book = rentedBooks.getBookByIndex(choice - 1);
+					if(book->getBookQuantity() > 1) {
+						cout << "Return " << book->getBookQuantity() << " copies of '" << book->getBookName() << "'?" << endl;
+					} else if(book->getBookQuantity() == 1) {
+						cout << "Return " << book->getBookQuantity() << " copy of '" << book->getBookName() << "'?" << endl;
 					}
 				}
 
 				cout<<"\nConfirm action [Y/N]: ";
-			    cin>>confirmReturn;
+				cin>>confirmReturn;    
+			}
+			else{
+				cout << "\nInvalid choice! Please re-enter...\n";
+				sleep(1);
+				system("cls");
+			}
+			inputFile.close();
+			/*if(numEntries == 0) {
+				cout<<"\n\n\t\t\t     No books rented...\n\n"<<endl;
+			} else {
+				overdueBooks = rentedBooks.listBooks(numEntries);
+			}
+			float fine = getoverduefee();
+			cout << "-----------------------------------------------------------------------------"<<endl;
+			cout << "**DISCLAIMER"<<endl;
+			cout << "  Select a line to return the specific book(s). Late returns are fined"<<endl;
+			cout << "  RM "<<fixed<<setprecision(2)<<fine<<"/day for each overdue book."<<endl;
+			cout << "-----------------------------------------------------------------------------"<<endl;
+			cout << "Enter your choice: ";
+			cin >> choice;
+
+    if(numEntries == 0 && choice != 0) {
+        cout << "\nNo books rented! Please try again later..." << endl;
+        sleep(2);
+        system("cls");
+        cout << "Recall Function" << endl;
+        // rented();
+    }
+    if(choice == 0) {
+        system("cls");
+        // userMenu();
+        cout << "Return to main" << endl;
+    }
+    else if(choice > 0 && choice <= numEntries) {
+        char confirmReturn;
+        int overdue = 0;
+        cout << "-----------------------------------------------------------------------------"<<endl;
+
+        for (size_t i = 0; i < overdueBooks.size(); ++i) {
+            if (overdueBooks[i].first == choice) {
+                cout << "Overdue by " << overdueBooks[i].second << " day(s). Total penalty fee is RM " << fixed << setprecision(2) << overdueBooks[i].second * fine << "." << endl;
+                RentedBook* book = rentedBooks.getBookByIndex(choice - 1);
+                if(book->getBookQuantity() > 1) {
+                    cout << "Pay penalty fee and return " << book->getBookQuantity() << " copies of '" << book->getBookName() << "'?" << endl;
+                } else if(book->getBookQuantity() == 1) {
+                    cout << "Pay penalty fee and return " << book->getBookQuantity() << " copy of '" << book->getBookName() << "'?" << endl;
+                }
+                overdue = 1;
+            }
+        }
+
+        if(overdue == 0){
+            RentedBook* book = rentedBooks.getBookByIndex(choice - 1);
+            if(book->getBookQuantity() > 1) {
+                cout << "Return " << book->getBookQuantity() << " copies of '" << book->getBookName() << "'?" << endl;
+            } else if(book->getBookQuantity() == 1) {
+                cout << "Return " << book->getBookQuantity() << " copy of '" << book->getBookName() << "'?" << endl;
+            }
+        }
+
+        cout<<"\nConfirm action [Y/N]: ";
+        cin>>confirmReturn;    
+    }
+    else{
+        cout << "\nInvalid choice! Please re-enter...\n";
+        sleep(1);
+        system("cls");
+    }
+    inputFile.close();
+			
 			    
 				if(confirmReturn == 'Y' || confirmReturn == 'y'){
 					ifstream fileStockRead;
