@@ -1177,7 +1177,7 @@ class Menus: public Verify, public Book {
 		        		//fee();
 		        		break;
 		        	case 6:
-		        		//checkrentalrecord();
+		        		checkrentalrecord();
 		        		break;
 		            default:
 		                cout << "\nInvalid choice! Please re-enter...\n";
@@ -2430,6 +2430,7 @@ class Menus: public Verify, public Book {
 		    delete[] overdueDays;
 		}*/
 };
+};
 			
 // function show complete current book list unsorted overloading
 void currentbooklist(){
@@ -2868,9 +2869,6 @@ void Menus::searchMenu(int num){
 		else if(num==4)
 			searchMenu(4);
 	}
-	
-	
-	
 }
 void Menus::searchMenu(){
 	char choice, ch;
@@ -3267,6 +3265,216 @@ void Menus::addbook(){
 	adminMenu();
 }
 
+void Menus::checkrentalrecord(){
+	int choice;
+	char yesno;
+			
+		system("cls");
+		cout << "======================================================================================="<<endl;
+		cout << "[0] Back \t\t\tVIEW RENTAL RECORDS"<<endl;
+		cout << "======================================================================================="<<endl;
+		cout << "Admin Menu > View Rental Records"<<endl;
+		cout << "---------------------------------------------------------------------------------------"<<endl;
+		cout << "[1] View all rental records"<<endl;
+		cout << "[2] View Overdue records"<<endl;
+		cout << "[3] View Active records"<<endl;
+		cout << "---------------------------------------------------------------------------------------"<<endl;
+		cout << "Enter your choice: ";
+		cin >> choice;
+		if(choice==0){
+			cout<<"Back to Admin Menu..."<<endl;
+			sleep(2);
+			adminMenu();
+		}
+		else if(choice==1){
+			checkstatus(1);
+		}
+		else if(choice==2){
+			checkstatus(2);
+		}
+		else if(choice==3){
+			checkstatus(3);
+		}
+		else{
+			cout<<"Invalid input. Please try again."<<endl;
+			sleep(2);
+			checkrentalrecord();
+		}
+		fflush(stdin);
+		cout << "Do you want to stay in this page? [y/n]: ";
+		cin >> yesno;
+		if(yesno=='y'||yesno=='Y'){
+			checkrentalrecord();
+		}
+		else if(yesno=='n'||yesno=='N'){
+			cout<<"Back to Admin Menu..."<<endl;
+			sleep(1);
+			adminMenu();
+		}
+		else{
+			cout<<"Wrong input."<<endl;
+			sleep(1);
+			checkrentalrecord();
+		}
+		
+}
+
+void checkstatus(int num){
+	int i=0,j=0,s, overdue=0, active=0,n=0;
+	string filename, bn, dd;
+	int qty, choice;
+	
+	ifstream read("records/registered/user.txt");
+	Info *I = new Info;
+	if(!read){
+		cout <<"Error: Unable to open the file user.txt"<<endl;
+		exit(0);
+	}
+	else{
+		while(read >> I-> username >> I->password){
+			i++;
+		}
+		//back to beginning of file 
+		read.clear();
+		read.seekg(0);
+		string *u = new string [i];
+		
+		while(read >> I-> username >> I->password){
+			u[j] = I->username;
+			j++;
+		}
+
+		read.close();
+		
+		j=0;
+		cout << "---------------------------------------------------------------------------------------"<<endl;
+		cout<<left<<setw(5)<<"No."<<setw(20)<<"User"<<setw(35)<<"Book Name"<<setw(5)<<"Qty"<<setw(13)<<"Date Due"<<setw(8)<<"Status"<<endl;
+		while(j<i){
+			filename = "records/rented/" + u[j] + ".txt";
+			ifstream out(filename.c_str());
+						
+			if(!out){
+				j++;
+				continue;
+			}
+			if(num==1){
+				cout<<endl;
+				while(out >> bn >> qty >> dd){
+					replace(bn.begin(), bn.end(), '%', ' ');
+					s=status(dd);
+						
+					cout<<left<<setw(5)<<n+1<<setw(20)<<u[j]<<setw(35)<<bn<<setw(5)<<qty<<setw(13)<<dd;
+					if(s==0){
+						cout <<setw(8)<< "\033[1;32mActive\033[0m" <<endl;
+						active++;
+					}
+					else if(s==1){
+						cout <<setw(8)<< "\033[1;31mOverdue\033[0m"<<endl;
+						overdue++;
+					}
+					n++;
+				}
+				
+				if(n==0){
+					cout<<"\n\n\t\t   No books currently being rented...\n\n"<<endl;
+				}
+			}
+
+			else if(num==2){
+				cout<<endl;
+				while(out >> bn >> qty >> dd){
+					replace(bn.begin(), bn.end(), '%', ' ');
+					s=status(dd);
+						
+					if(s==1){
+						cout<<left<<setw(5)<<n+1<<setw(20)<<u[j]<<setw(35)<<bn<<setw(5)<<qty<<setw(13)<<dd;
+						cout <<setw(8)<< "\033[1;31mOverdue\033[0m"<<endl;
+						overdue++;
+						if(overdue!=0){
+							n++;
+						}
+					}
+					
+				}
+				
+			}
+
+			else if(num==3){
+				cout<<endl;
+				while(out >> bn >> qty >> dd){
+					replace(bn.begin(), bn.end(), '%', ' ');
+					s=status(dd);
+					
+					if(s==0){
+						cout<<left<<setw(5)<<n+1<<setw(20)<<u[j]<<setw(35)<<bn<<setw(5)<<qty<<setw(13)<<dd;
+						cout <<setw(8)<< "\033[1;32mActive\033[0m" <<endl;
+						active++;
+						if(active!=0){
+							n++;
+						}
+					}
+					
+				}
+				
+			}
+			
+			out.close();
+
+			j++;	
+		}
+		if(overdue==0&&num==2){
+			cout<<"\n\n\t\t\tThere is no overdued book...\n\n"<<endl;
+		}
+		else if(active==0&&num==3){
+			cout<<"\n\n\t\t      There is no books with status active...\n\n"<<endl;
+		}
+
+		cout << "======================================================================================="<<endl;
+
+		
+		delete []u;
+		delete I;
+		
+		
+	}//end of else
+	
+}
+
+int status(string datedue){
+	time_t currentTime = time(0);
+    tm* currentDate = localtime(&currentTime);
+		    	
+	tm dueDate = {};
+	istringstream ss(datedue);
+			    
+	string dayStr, monthStr, yearStr;
+	getline(ss, dayStr, '/');
+	getline(ss, monthStr, '/');
+	getline(ss, yearStr);
+
+	int day, month, year;
+	istringstream(dayStr) >> day;
+	istringstream(monthStr) >> month;
+	istringstream(yearStr) >> year;
+		    	
+	tm specificDate = {0};
+	specificDate.tm_mday = day;
+	specificDate.tm_mon = month - 1;
+	specificDate.tm_year = year - 1900;
+	
+	int daysDifference = currentDate->tm_mday - specificDate.tm_mday + (currentDate->tm_mon - specificDate.tm_mon) * 30 + (currentDate->tm_year - specificDate.tm_year) * 365;
+	if (currentDate->tm_year == specificDate.tm_year && currentDate->tm_mon == specificDate.tm_mon && currentDate->tm_mday == specificDate.tm_mday) {
+		return 0;
+	}
+	else if (difftime(currentTime, mktime(&specificDate)) > 0) {
+		return 1;
+	}
+	else{
+		return 0;
+	}
+	
+}
+
 bool saveextrastock(int additional, string tempname){
 	bool found = false;
 	fstream putinfile("records/books.txt", ios::in | ios::out);
@@ -3360,7 +3568,7 @@ string getGenre(const string& id) {
 		default: return "Unknown"; 
 	}
 }
-};
+
 int main(){
 	Menus client;
     int choice=0;
@@ -3410,3 +3618,4 @@ int main(){
     
 	return 0;
 }
+
