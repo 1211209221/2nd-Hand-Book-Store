@@ -516,7 +516,7 @@ class BookLinkedList {
         delete[] output;
     }
 
-		//for id overloading function
+		//for id overloading function (find one id)
 		Book* find(string id) {
 	        Book* current = head;
 	        while (current != NULL) {
@@ -527,7 +527,7 @@ class BookLinkedList {
 	        }
 	        return NULL;
     	}
-    	//for name overloading function
+    	//for name overloading function (find one name)
     	Book* find(string name, int num) {
 	        Book* current = head;
 	        while (current != NULL) {
@@ -546,7 +546,66 @@ class BookLinkedList {
 	        }
 	        return NULL;
     	}
-
+    	
+    	//search by id and by name (use naive string algorithm)
+    	void searchByID(string id) {
+	        Book* current = head;
+	        int count = 0;
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+	        cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(11) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+	        while (current != NULL) {
+	            if (customFind(current->getBookID(), id)) {
+	                cout << left << setw(5) << current->getBookID() << left << setw(37) << current->getBookName() << left << setw(11) << current->getBookPrice() << left << setw(7) << current->getBookStock() << left << setw(25) << current->getBookAuthor() << left << setw(15) << current->getBookGenre() << endl;
+	            	++count;
+				}
+	            current = current->next;
+	        }
+	        cout <<endl<< count<<" result(s) found."<<endl; 
+	        
+	        if (count == 0) {
+				cout << "----------------------------------------------------------------------------------------------"<<endl;
+        		cout << "\n\n\t\t\t\t     No results found.\n\n"<<endl;
+	        }
+	    }
+	
+	    // search function for Name
+	    void searchByName(string name) {
+	        Book* current = head;
+	        int count = 0;
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+	        cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(11) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+			while (current != NULL) {
+	            if (customFind(current->getBookName(), name)) {
+	                cout << left << setw(5) << current->getBookID() << left << setw(37) << current->getBookName() << left << setw(11) << current->getBookPrice() << left << setw(5) << current->getBookStock() << left << setw(25) << current->getBookAuthor() << left << setw(15) << current->getBookGenre() << endl;
+	            	++count;
+				}
+	            current = current->next;
+	        }
+	        cout <<endl<< count<<" result(s) found."<<endl; 
+	        if (count == 0) {
+				cout << "----------------------------------------------------------------------------------------------"<<endl;
+        		cout << "\n\n\t\t\t\t     No results found.\n\n"<<endl;
+	        }
+	    }
+	
+	    // naive find function to search for substrings
+	    bool customFind(string str, string substr) {
+	        int n = str.length();
+	        int m = substr.length();
+	        for (int i = 0; i <= n - m; i++) {
+	            int j;
+	            for (j = 0; j < m; j++) {
+	                if (str[i + j] != substr[j]) {
+	                    break;
+	                }
+	            }
+	            if (j == m) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
+    	
 		//for merge sort id
 	    Book* merge(Book* left, Book* right) {
 		    if (left == NULL) {
@@ -610,6 +669,8 @@ class BookLinkedList {
 	            current = current->next;
 	        }
 	    }
+	    
+	    
 };
 
 class HashTable {
@@ -1018,6 +1079,7 @@ class Menus: public Verify, public Book {
 		void checkrentalrecord();
 		void searchMenu();//for admin
 		void sortMenu();//for admin
+		void searchMenu(int num);//for admin to serach book to delete/update
 		
 		void userMenu(){
 		    while (true) 
@@ -1106,10 +1168,10 @@ class Menus: public Verify, public Book {
 		        		viewbook();
 		        		break;
 		        	case 3:
-		        		//updatebook();
+		        		searchMenu(3);
 		        		break;
 		        	case 4:
-		        		//deletebook();
+		        		searchMenu(4);
 		        		break;
 		        	case 5:
 		        		//fee();
@@ -2369,12 +2431,12 @@ class Menus: public Verify, public Book {
 		}*/
 };
 			
-// function show complete current book list unsorted 
+// function show complete current book list unsorted overloading
 void currentbooklist(){
 	
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
-	cout << "The Current Book List:" << endl;
-	cout << left << setw(5) << "No." << left << setw(37) << "Book Name" << left << setw(8) << "Price" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+	cout << "The Current Book List:" << endl <<endl;
+	cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(13) << "Price" << left << setw(5) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
 	BookLinkedList b;
 	
 	ifstream readfile("records/books.txt");
@@ -2393,16 +2455,213 @@ void currentbooklist(){
 	b.completelist();
 	
 }
-
 // function show complete current book list (sorted) overloading
 void currentbooklist(BookLinkedList& bl) {
     cout << "----------------------------------------------------------------------------------------------" << endl;
     cout << "The Current Book List:" << endl <<endl;
-    cout << left << setw(5) << "No." << left << setw(37) << "Book Name" << left << setw(8) << "Price" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+    cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(13) << "Price" << left << setw(5) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
     bl.completelist();
 }
 
 //functions outside the Menus class are admin part (YS)
+void Menus::updatebook(string code){
+	char choice, yesno;
+	string id, name, author, genre, I, n, a, g;
+	float price, p;
+	int stock, s;
+		
+	system("cls");
+	
+	ifstream readb("records/books.txt");
+	ofstream temp("records/tempb.txt",ios::trunc);
+			
+	if(!readb){
+		cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+		exit(0);
+	}
+	else{
+		cout << "=============================================================================================="<<endl;
+		cout << "[0] Back \t\t\t\t  UPDATE BOOK"<<endl;
+		cout << "=============================================================================================="<<endl;
+		cout << "Admin Menu > Update Book"<<endl;
+		cout << "=============================================================================================="<<endl;
+		cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(15) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << endl;
+		while(readb >> id >> name >> price >> stock >> author >> genre){
+			if(code==id){
+				replace(name.begin(), name.end(), '%', ' ');
+				replace(author.begin(), author.end(), '%', ' ');
+				replace(genre.begin(), genre.end(), '%', ' ');
+						
+				cout<<left<<setw(5)<<id<<setw(37)<<name<<setw(15)
+						<<fixed<<setprecision(2)<<price<<setw(7)<<stock
+						<<setw(25)<<author<<endl;
+				fflush(stdin);
+				cout << "----------------------------------------------------------------------------------------------"<<endl;
+				cout << "[1] Book Name"<<endl;
+				cout << "[2] Price"<<endl;
+				cout << "[3] Stock"<<endl;
+				cout << "[4] Author"<<endl;
+				cout << "----------------------------------------------------------------------------------------------"<<endl;
+				cout << "Choose the part you want to update: ";
+				cin >> choice;
+				
+				if(choice=='0'){
+					cout<<"\nBack to search book menu..."<<endl;
+					sleep(1);
+					searchMenu(3);
+				}
+				else if(choice=='1'){
+					cout << "Book Name: ";
+					cin.ignore();
+					getline(cin,name);
+					
+				}
+				else if(choice=='2'){
+					cout << "Price    : RM ";
+					cin >> price;
+					if(price<=0){
+						cout<<"\n~ Price CANNOT be written as NEGATIVE / ZERO value!"<<endl;
+						cout << "\nInvalid data! Please re-enter...\n";
+						sleep(2);
+						updatebook(code);
+					}
+				}
+				else if(choice=='3'){
+					cout << "Stock    : ";
+					cin >> stock;
+					if(stock<0){
+						cout<<"\n~ Stock CANNOT be written as NEGATIVE / ZERO value!"<<endl;
+						cout << "\nInvalid data! Please re-enter...\n";
+						sleep(2);
+						updatebook(code);
+					}
+				}
+				else if(choice=='4'){
+					cout <<"Author   : ";
+					getline(cin,author);
+				}
+				else{
+					cout<<"\nInvalid choice..."<<endl;
+					sleep(1);
+					updatebook(code);
+				}
+				
+
+				replace(name.begin(), name.end(), ' ', '%');
+				replace(author.begin(), author.end(), ' ', '%');
+				replace(genre.begin(), genre.end(), ' ', '%');
+				//save in temp
+				temp << id <<" "<< name <<" " <<fixed<<setprecision(2)<< price <<" " << stock <<" " << author <<" " << genre <<endl;
+						
+			}
+			else{
+				temp << id <<" "<< name <<" " <<fixed<<setprecision(2)<< price <<" " << stock <<" " << author <<" " << genre <<endl;
+			}
+					
+		}
+		readb.close();
+		temp.close();
+				
+		ifstream source("records/tempb.txt");
+		ofstream destination("records/books.txt", ios::trunc); 
+		if(!source.is_open() || !destination.is_open()){
+			cout << "\nError: Unable to open files tempb.txt or books.txt"<<endl;
+			exit(0);
+		}
+		else{
+			//copy all contents from source to destination
+			destination << source.rdbuf();
+			
+			source.close();
+			destination.close();
+			
+			cout<<"\nBook is updated successfully!"<<endl;
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+			cout << "Do you want to update another part of this book? [y/n]: ";
+			cin >> yesno;
+			
+			if(yesno=='y'||yesno=='Y'){
+				updatebook(code);
+			}
+			else if(yesno=='n'||yesno=='N'){
+				cout<<"\nBack to search book menu..."<<endl;
+				sleep(1);
+				searchMenu(3);
+			}
+			else{
+				cout<<"\nInvalid choice..."<<endl;
+				sleep(1);
+				updatebook(code);
+			}
+		}			
+	}
+}
+void Menus::deletebook(string code){
+	char choice, yesno;
+	string id, name, author, genre, I, n, a, g;
+	float price, p;
+	int stock, s;
+		
+	system("cls");
+	
+	ifstream readb("records/books.txt");
+	ofstream temp("records/tempb.txt",ios::trunc);
+	ofstream del("records/delbook.txt",ios::app);
+			
+	if(!readb){
+		cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+		exit(0);
+	}
+	else{
+		cout << "=============================================================================================="<<endl;
+		cout << "[0] Back \t\t\t\t  DELETE BOOK"<<endl;
+		cout << "=============================================================================================="<<endl;
+		cout << "Admin Menu > Delete Book"<<endl;
+		cout << "=============================================================================================="<<endl;
+		cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(15) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << endl;
+		while(readb >> id >> name >> price >> stock >> author >> genre){
+			if(code==id){
+				replace(name.begin(), name.end(), '%', ' ');
+				replace(author.begin(), author.end(), '%', ' ');
+				replace(genre.begin(), genre.end(), '%', ' ');
+						
+				cout<<left<<setw(5)<<id<<setw(37)<<name<<setw(15)
+						<<fixed<<setprecision(2)<<price<<setw(7)<<stock
+						<<setw(25)<<author<<endl;
+
+				replace(name.begin(), name.end(), ' ', '%');
+				replace(author.begin(), author.end(), ' ', '%');
+				replace(genre.begin(), genre.end(), ' ', '%');
+				//save in deleted book file
+				del << id <<" "<< name <<" " <<fixed<<setprecision(2)<< price <<" " << stock <<" " << author <<" " << genre <<endl;
+				
+			}
+			else{
+				temp << id <<" "<< name <<" " <<fixed<<setprecision(2)<< price <<" " << stock <<" " << author <<" " << genre <<endl;
+			}
+		}
+		readb.close();
+		temp.close();
+		del.close();
+		
+		ifstream source("records/tempb.txt");
+		ofstream destination("records/books.txt", ios::trunc); 
+		if(!source.is_open() || !destination.is_open()){
+			cout << "\nError: Unable to open files tempb.txt or books.txt"<<endl;
+			exit(0);
+		}
+		else{
+			//copy all contents from source to destination
+			destination << source.rdbuf();
+			
+			source.close();
+			destination.close();
+			
+			cout<<"\nBook is deleted successfully!"<<endl;
+			
+		}	
+	}
+}
 void Menus::viewbook(){
 	char choice;
 	
@@ -2429,13 +2688,279 @@ void Menus::viewbook(){
 		sortMenu();//for admin
 	}
 	else if(choice == '2'){
-		//searchMenu();//for admin
+		searchMenu();//for admin
 	}
 	else{
 		cout<<"\nInvalid choice..."<<endl;
 		sleep(1);
 		viewbook();
 	}
+}
+void Menus::searchMenu(int num){
+	char choice, ch;
+	
+	system("cls");
+	fflush(stdin);
+	if(num==3){
+		cout << "=============================================================================================="<<endl;
+		cout << "[0] Back \t\t\t\t  UPDATE BOOK"<<endl;
+		cout << "=============================================================================================="<<endl;
+		cout << "Admin Menu > Update Book"<<endl;
+	}
+	else if(num==4){
+		cout << "=============================================================================================="<<endl;
+		cout << "[0] Back \t\t\t\t  DELETE BOOK"<<endl;
+		cout << "=============================================================================================="<<endl;
+		cout << "Admin Menu > Delete Book"<<endl;
+	}
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "[1] Search by ID"<<endl;
+	cout << "[2] Search by Book Name"<<endl;
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "*Note: It will only find one and only result, so please type COMPLETE ID / Name"<<endl<<endl;
+	cout << "Enter your choice: ";
+	cin >> choice;
+	
+	BookLinkedList bl;
+	    
+	string id, name, author, genre, I, n;
+	float price;
+	int stock;
+	char yesno;
+	
+	if(choice=='0'){
+		cout<<"\nBack to admin menu..."<<endl;
+		sleep(1);
+		adminMenu();
+	}
+	else if(choice=='1'){
+		//open file
+		ifstream readfile("records/books.txt");
+		if(!readfile){
+			cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+			exit(0);
+		}
+		else{
+			while (readfile >> id >> name >> price >> stock >> author >> genre) {
+			    bl.insert(id, name, price, stock, author, genre);
+			}
+			readfile.close();
+		}
+		cout<<"Enter the Book ID to search: ";
+		cin >> I;
+		Book* book = bl.find(I);
+		if(book != NULL){
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+			cout << "Book found!"<<endl<<endl;
+			cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(11) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+			cout << left << setw(5) << book->getBookID() << left << setw(37) << book->getBookName() << left << setw(11) << book->getBookPrice() << left << setw(7) << book->getBookStock() << left << setw(25) << book->getBookAuthor() << left << setw(15) << book->getBookGenre() << endl;
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+			cout << "Confirm action [y/n]: ";
+			cin >> yesno;
+			if(yesno=='y'||yesno=='Y'){
+				if(num==3){
+					updatebook(book->getBookID());
+					currentbooklist();
+				}	
+				else if(num==4){
+					deletebook(book->getBookID());
+					currentbooklist();
+				}	
+			}
+			else if(yesno=='n'||yesno=='N'){
+				//do nothing
+			}
+			else{
+				cout<<"\nInvalid choice..."<<endl;
+				sleep(1);
+				if(num==3)
+					searchMenu(3);
+				else if(num==4)
+					searchMenu(4);
+			}
+		}
+		else{
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+        	cout << "\n\n\t\t\t\t     No results found.\n\n"<<endl;
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+			
+		}
+	}
+	else if(choice == '2'){
+		ifstream readfile("records/books.txt");
+		if(!readfile){
+			cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+			exit(0);
+		}
+		else{
+			while (readfile >> id >> name >> price >> stock >> author >> genre) {
+			    bl.insert(id, name, price, stock, author, genre);
+			}
+			readfile.close();
+		}
+		cout<<"Enter the full book name to serach: ";
+		cin.ignore();
+		getline(cin,n);
+		Book* book = bl.find(n,0);
+		if(book != NULL){
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+			cout << "Book found!"<<endl<<endl;
+			cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(11) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+			cout << left << setw(5) << book->getBookID() << left << setw(37) << book->getBookName() << left << setw(11) << book->getBookPrice() << left << setw(7) << book->getBookStock() << left << setw(25) << book->getBookAuthor() << left << setw(15) << book->getBookGenre() << endl;
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+			cout << "Confirm action [y/n]: ";
+			cin >> yesno;
+			if(yesno=='y'||yesno=='Y'){
+				if(num==3){
+					updatebook(book->getBookID());
+					currentbooklist();
+				}	
+				else if(num==4){
+					deletebook(book->getBookID());
+					currentbooklist();
+				}
+			}
+			else if(yesno=='n'||yesno=='N'){
+				//do nothing
+			}
+			else{
+				cout<<"\nInvalid choice..."<<endl;
+				sleep(1);
+				if(num==3)
+					searchMenu(3);
+				else if(num==4)
+					searchMenu(4);
+			}
+		}
+		else{
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+        	cout << "\n\n\t\t\t\t     No results found.\n\n"<<endl;
+			cout << "----------------------------------------------------------------------------------------------"<<endl;
+		}
+	}
+	else{
+		cout<<"\nInvalid choice..."<<endl;
+		sleep(1);
+		if(num==3)
+			searchMenu(3);
+		else if(num==4)
+			searchMenu(4);
+	}
+	cout << "=============================================================================================="<<endl;
+	cout<<"Search again [y/n]: ";
+	cin>>ch;
+	if(ch=='y'||ch=='Y'){
+		if(num==3)
+			searchMenu(3);
+		else if(num==4)
+			searchMenu(4);
+	}
+	else if(ch=='n'||ch=='N'){
+		cout<<"\nBack to admin menu..."<<endl;
+		sleep(1);
+		adminMenu();
+	}
+	else{
+		cout<<"\nInvalid choice..."<<endl;
+		sleep(1);
+		if(num==3)
+			searchMenu(3);
+		else if(num==4)
+			searchMenu(4);
+	}
+	
+	
+	
+}
+void Menus::searchMenu(){
+	char choice, ch;
+	
+	system("cls");
+	fflush(stdin);
+	cout << "=============================================================================================="<<endl;
+	cout << "[0] Back \t\t\t\t  SEARCH BOOK"<<endl;
+	cout << "=============================================================================================="<<endl;
+	cout << "Admin Menu > View Book > Seacrh Book"<<endl;
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "[1] Search by ID"<<endl;
+	cout << "[2] Search by keyword"<<endl;
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "Enter your choice: ";
+	cin >> choice;
+	
+	BookLinkedList bl;
+	    
+	string id, name, author, genre, I, n;
+	float price;
+	int stock;
+	
+	if(choice=='0'){
+		cout<<"\nBack to view book menu..."<<endl;
+		sleep(1);
+		viewbook();
+	}
+	else if(choice == '1'){
+		//open file
+		ifstream readfile("records/books.txt");
+		if(!readfile){
+			cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+			exit(0);
+		}
+		else{
+			while (readfile >> id >> name >> price >> stock >> author >> genre) {
+			    bl.insert(id, name, price, stock, author, genre);
+			}
+			readfile.close();
+		}
+		cout<<"Enter the Book ID to search: ";
+		cin >> I;
+		bl.searchByID(I);
+		
+	}
+	else if(choice == '2'){
+		ifstream readfile("records/books.txt");
+		if(!readfile){
+			cout<<"Error: Unable to open the file 'records/books.txt'\n"<<endl;
+			exit(0);
+		}
+		else{
+			while (readfile >> id >> name >> price >> stock >> author >> genre) {
+			    bl.insert(id, name, price, stock, author, genre);
+			}
+			readfile.close();
+		}
+		cout<<"Enter the keyword to serach: ";
+		cin.ignore();
+		getline(cin,n);
+		bl.searchByName(n);
+	}
+	else{
+		cout<<"\nInvalid choice..."<<endl;
+		sleep(1);
+		searchMenu();
+	}
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "[0] View Book Menu"<<endl;
+	cout << "[1] Seacrh Again"<<endl;
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "Enter your choice: ";
+	cin >> ch;
+	
+	if(ch=='0'){
+		cout<<"Back to view book menu..."<<endl;
+		sleep(1);
+		viewbook();
+	}
+	else if(ch=='1'){
+		searchMenu();
+	}
+	else{
+		cout<<"\nInvalid choice..."<<endl;
+		sleep(1);
+		searchMenu();
+	}
+	
+	
 }
 void Menus::sortMenu(){
 	char choice, ch;
@@ -2455,9 +2980,9 @@ void Menus::sortMenu(){
 	
 	BookLinkedList bl;
 	    
-	string id, name, author, genre, I, n, a, g;
-	float price, p;
-	int stock, s;
+	string id, name, author, genre;
+	float price;
+	int stock;
 	
 	if(choice=='0'){
 		cout<<"\nBack to view book menu..."<<endl;
@@ -2503,7 +3028,7 @@ void Menus::sortMenu(){
 	}
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
 	cout << "[0] View Book Menu"<<endl;
-	cout << "[1] Search Book Menu"<<endl;
+	cout << "[1] Sort Again"<<endl;
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
 	cout << "Enter your choice: ";
 	cin >> ch;
@@ -2514,7 +3039,7 @@ void Menus::sortMenu(){
 		viewbook();
 	}
 	else if(ch=='1'){
-		
+		sortMenu();
 	}
 	else{
 		cout<<"\nInvalid choice..."<<endl;
