@@ -2,7 +2,7 @@ M001 The%Adventures%of%Sherlock%Holmes 4.99 0 Arthur%Conan%Doyle Mystery
 N001 The%Martian 5.5 17 Andy%Weir Fiction
 P001 The%Art%of%War 2.75 48 Sun%Tzu Philosophy
 C001 The%Odyssey 3.25 12 Homer Classics
-T001 The%Girl%on%the%Train 3.80 64 Paula%Hawkins Thriller
+T001 The%Girl%on%the%Train 3.8 55 Paula%Hawkins Thriller
 R001 The%Cat%in%the%Hat 1.99 38 Dr.%Seuss Children
 C002 The%Picture%of%Dorian%Gray 3.60 39 Oscar%Wilde Classics
 C003 The%Old%Man%and%the%Sea 2.99 31 Ernest%Hemingway Classics
@@ -16,6 +16,6 @@ N002 War%and%Peace 4.20 26 Leo%Tolstoy Fiction
 N003 The%Book%Thief 7.80 15 Markus%Zusak Fiction
 H002 The%Return 3.00 8 Horror Horror
 T002 Lock%Every%Door 3.60 31 Riley%Sager Thriller
-M003 Gone%Girl 6 14 Gillian%Flynn Mystery
-M004 The%Guest%List 2.1 29 Lucy%Foley Mystery
-M005 Blacktop%Wasteland 5.7 0 S.A.%Cosby Mystery
+M003 Gone%Girl 6 12 Gillian%Flynn Mystery
+M004 The%Guest%List 2.1 28 Lucy%Foley Mystery
+M005 Blacktop%Wasteland 5.7 97 S.A.%Cosby Mystery
