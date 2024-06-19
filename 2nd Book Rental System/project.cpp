@@ -2,6 +2,7 @@
 //Benjamin Lim Kok Pin 1211209221
 //Kerk Ming Da 1211211733
 //Tan Yan San 1211108273
+//Yap Meng Yoon 1211110456
 
 #include<iostream>
 #include<iomanip>
@@ -157,83 +158,103 @@ public:
 
     void registration() {
     UsersLinkedList userlist;
+    userlist.loadUserFromFile("records/registered/user.txt");
     char confirm;
-    do {
+
         cout << "=============================================================================" << endl;
         cout << "\t\t\t      USER REGISTRATION" << endl;
         cout << "=============================================================================" << endl;
         cout << "Do you want to create a new account? (y/n): ";
         cin >> confirm;
 
-        if (confirm != 'y' && confirm != 'Y') {
+        if (confirm == 'n' || confirm == 'N') {
             cout << "Account creation canceled. Returning to the main menu...\n";
             sleep(2);
             system("cls");
             main();
-        }
-
-        system("cls");
-        cout << "=============================================================================" << endl;
-        cout << "\t\t\t      USER REGISTRATION" << endl;
-        cout << "=============================================================================" << endl;
-
-        //fflush(stdin);
-		cin.ignore();
-        cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
-        cout << "Enter username: ";
-        getline(cin, username);
-
-        if (username.length() < 5 || !isalpha(username[0])) {
-            cout << "Invalid username! Please enter a username with at least five characters and starting with a letter... ";
-            sleep(2);
-            continue;
-        }
-		cout << "\nPassword Requirements:\n1. Password must contain at least EIGHT characters. \n2. Password must contain at least one UPPERCASE LETTER.\n3. Password must contain at least one LOWERCASE LETTER?\n4. Password must contain at least one DIGIT.\n5. Password must contain at least one SPECIAL CHARACTER within ~!@#$%^&*_-+=`|(){}[]:;\"'<>,.?/.\n" << endl;
-        cout << "Enter password: ";
-        cin >> password;
-
-        if (password.length() < 8) {
-            cout << "Invalid password! Please enter a password with at least eight characters... ";
-            sleep(2);
-            continue;
-        }
-
-        // Check password complexity
-        bool hasUppercase = false, hasLowercase = false, hasDigit = false, hasSpecialChar = false;
-        for (int i = 0; i < password.length(); i++) {
-                if (isupper(password[i])) {
-                    hasUppercase = true;
-                } else if (islower(password[i])) {
-                    hasLowercase = true;
-                } else if (isdigit(password[i])) {
-                    hasDigit = true;
-                } else if (specialCharacters.find(password[i]) != string::npos) {
-                    hasSpecialChar = true;
-                }
-            }
-        if (!(hasUppercase && hasLowercase && hasDigit && hasSpecialChar)) {
-            cout << "\nInvalid password! Password must contain at least: \nONE UPPERCASE LETTER \nONE LOWERCASE LETTER \nONE DIGIT \nONE SPECIAL CHARACTER ";
-            sleep(3);
-            continue;
-        }
-
-        if (userlist.checkUsername(username)) {
-            cout << "\nUsername already taken! Please try again...";
-            sleep(2);
-            system("cls");
-        } else {
-            cout << "\nUser registered successfully! Redirecting to menu...\n";
-            userlist.insert(username, password);
-            userlist.writeUserToFile("records/registered/user.txt");
+        }else if(confirm == 'y' || confirm == 'Y'){
+        	do {
+		        system("cls");        
+		        while (true) {
+		        	cout << "=============================================================================" << endl;
+		        	cout << "\t\t\t      USER REGISTRATION" << endl;
+		        	cout << "=============================================================================" << endl;
+		         	fflush(stdin);       	
+		            cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
+		            cout << "Enter username: ";
+		            getline(cin, username);
+		
+		            if (username.length() < 5 || !isalpha(username[0])) {
+		                cout << "Invalid username! Please enter a username with at least five characters and starting with a letter... ";
+		                sleep(2);
+		                system("cls");
+		                continue;
+		            }
+		
+		            if (userlist.checkUsername(username)) {
+		                cout << "\nUsername already taken! Please try again...";
+		                sleep(2);
+		                system("cls");
+		                continue;
+		            }
+		            break;  // Valid username entered
+		        }
+		
+		        // Password input
+		        while (true) {
+		        	system("cls");
+		        	cout << "=============================================================================" << endl;
+		        	cout << "\t\t\t      USER REGISTRATION" << endl;
+		        	cout << "=============================================================================" << endl;
+		        	cout << "Username Requirements:\n1. Username must contain at least FIVE characters. \n2. Username must start with a LETTER\n" << endl;
+		            cout << "Enter username: " << username << endl;
+		            cout << "\nPassword Requirements:\n1. Password must contain at least EIGHT characters. \n2. Password must contain at least one UPPERCASE LETTER.\n3. Password must contain at least one LOWERCASE LETTER.\n4. Password must contain at least one DIGIT.\n5. Password must contain at least one SPECIAL CHARACTER within ~!@#$%^&*_-+=`|(){}[]:;\"'<>,.?/.\n" << endl;
+		            cout << "Enter password: ";
+		            cin >> password;
+		
+		            if (password.length() < 8) {
+		                cout << "Invalid password! Please enter a password with at least eight characters... ";
+		                sleep(2);
+		                system("cls");
+		                continue;
+		            }
+		
+		            // Check password complexity
+		            bool hasUppercase = false, hasLowercase = false, hasDigit = false, hasSpecialChar = false;
+		            for (char ch : password) {
+		                if (isupper(ch)) hasUppercase = true;
+		                else if (islower(ch)) hasLowercase = true;
+		                else if (isdigit(ch)) hasDigit = true;
+		                else if (specialCharacters.find(ch) != string::npos) hasSpecialChar = true;
+		            }
+		
+		            if (!(hasUppercase && hasLowercase && hasDigit && hasSpecialChar)) {
+		                cout << "\nInvalid password! Password must contain at least: \nONE UPPERCASE LETTER \nONE LOWERCASE LETTER \nONE DIGIT \nONE SPECIAL CHARACTER ";
+		                sleep(3);
+		                system("cls");
+		                continue;
+		            }
+		            break;  // Valid password entered
+		        }
+		
+		        cout << "\nUser registered successfully! Redirecting to menu...\n";
+		        userlist.insert(username, password);
+		        userlist.writeUserToFile("records/registered/user.txt");
+		        sleep(1);
+		        system("cls");
+		        main();
+		    } while (true);
+		}else{
+			cout << "\nInvalid choice! Please re-enter...\n";
             sleep(1);
             system("cls");
-            main();
-            break;
-        }
-    } while (true);
-}
+		    registration();
+		}
 
-    string getUsername() {
+
+}
+    
+	string getUsername() {
         return username;
     }
 
@@ -317,6 +338,69 @@ class Book {
 	        next = NULL;
 	    }
 
+		friend void changefee(int op);
+	    
+	    void setrentfee(){
+			float r,o,s,e;
+			
+			ifstream check("records/fee.txt");
+			if(!check){
+				cout <<"Error: Unable to open the file fee.txt"<<endl;
+				exit(0);
+			}
+			else{
+				check >> r >> o >> s >> e;
+				check.close();
+				
+				ofstream fee("records/fee.txt",ios::trunc);
+				if(!fee){
+					cout <<"Error: Unable to open the file fee.txt"<<endl;
+					exit(0);
+				}
+				else{
+					//put in file
+					fee << rentf <<" "<< o << " "<< s << " "<< e;
+					fee.close();
+				}
+			}				
+		}
+		float getrentfee(){
+			ifstream out("records/fee.txt");
+			if(!out){
+					cout <<"Error: Unable to open the file fee.txt"<<endl;
+					exit(0);
+			}
+			out >> rentf >> overduef >> sumf >> earnrent;
+			
+			return rentf;
+			out.close();
+
+		}
+		void setoverduefee(){
+			float r,o,s,e;
+			
+			ifstream check("records/fee.txt");
+			if(!check){
+				cout <<"Error: Unable to open the file fee.txt"<<endl;
+				exit(0);
+			}
+			else{
+				check >> r >> o >> s >> e;
+				check.close();
+				
+				ofstream fee("records/fee.txt",ios::trunc);
+				if(!fee){
+					cout <<"Error: Unable to open the file fee.txt"<<endl;
+					exit(0);
+				}
+				else{
+					//put in file
+					fee << r <<" "<< overduef << " " << s << " " << e;
+					fee.close();
+				}
+			}	
+		}
+
 		float getoverduefee(){
 			ifstream out("records/fee.txt");
 			if(!out){
@@ -398,7 +482,7 @@ class Book {
 
 		void details(bool check){
 	    	if(check){
-	    		cout << left << setw(5) << id << left << setw(37) << name << left << "RM " << setw(8) << fixed << setprecision(2) << price << left << setw(7) << stock << left << setw(25) << author << left << setw(15) << genre << endl;
+	    		cout << left << setw(5) << id << left << setw(37) << name << left << setw(10) << fixed << setprecision(2) << price << left << setw(8) << stock << left << setw(25) << author << left << setw(15) << genre << endl;
 			}
 		}
 	
@@ -552,20 +636,22 @@ class BookLinkedList {
 	        Book* current = head;
 	        int count = 0;
 			cout << "----------------------------------------------------------------------------------------------"<<endl;
-	        cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(11) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+	        cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(10) << "Price(RM)" << left << setw(8) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
 	        while (current != NULL) {
 	            if (customFind(current->getBookID(), id)) {
-	                cout << left << setw(5) << current->getBookID() << left << setw(37) << current->getBookName() << left << setw(11) << current->getBookPrice() << left << setw(7) << current->getBookStock() << left << setw(25) << current->getBookAuthor() << left << setw(15) << current->getBookGenre() << endl;
+	                cout << left << setw(5) << current->getBookID() << left << setw(37) << current->getBookName() << left << setw(10) << current->getBookPrice() << left << setw(8) << current->getBookStock() << left << setw(25) << current->getBookAuthor() << left << setw(15) << current->getBookGenre() << endl;
 	            	++count;
 				}
 	            current = current->next;
 	        }
-	        cout <<endl<< count<<" result(s) found."<<endl; 
 	        
 	        if (count == 0) {
 				cout << "----------------------------------------------------------------------------------------------"<<endl;
         		cout << "\n\n\t\t\t\t     No results found.\n\n"<<endl;
 	        }
+			else{
+	        	cout <<endl<< count<<" result(s) found."<<endl; 
+			}
 	    }
 	
 	    // search function for Name
@@ -573,19 +659,22 @@ class BookLinkedList {
 	        Book* current = head;
 	        int count = 0;
 			cout << "----------------------------------------------------------------------------------------------"<<endl;
-	        cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(11) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+	        cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(10) << "Price(RM)" << left << setw(8) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
 			while (current != NULL) {
 	            if (customFind(current->getBookName(), name)) {
-	                cout << left << setw(5) << current->getBookID() << left << setw(37) << current->getBookName() << left << setw(11) << current->getBookPrice() << left << setw(5) << current->getBookStock() << left << setw(25) << current->getBookAuthor() << left << setw(15) << current->getBookGenre() << endl;
+	                cout << left << setw(5) << current->getBookID() << left << setw(37) << current->getBookName() << left << setw(10) <<fixed<<setprecision(2)<< current->getBookPrice() << left << setw(8) << current->getBookStock() << left << setw(25) << current->getBookAuthor() << left << setw(15) << current->getBookGenre() << endl;
 	            	++count;
 				}
 	            current = current->next;
 	        }
-	        cout <<endl<< count<<" result(s) found."<<endl; 
+	        
 	        if (count == 0) {
 				cout << "----------------------------------------------------------------------------------------------"<<endl;
         		cout << "\n\n\t\t\t\t     No results found.\n\n"<<endl;
 	        }
+	        else{
+	        	cout <<endl<< count<<" result(s) found."<<endl; 
+			}
 	    }
 	
 	    // naive find function to search for substrings
@@ -751,7 +840,7 @@ public:
 class Cart {
 private:
     string bookName;
-    double bookPrice;
+    double bookPrice, bookTotalPrice;
     int bookQuantity;
     int bookDuration;
     Cart* next;
@@ -764,6 +853,14 @@ public:
         bookPrice = price;
         bookQuantity = quantity;
         bookDuration = duration;
+
+		ifstream fee("records/fee.txt");
+			if(!fee){
+				cout<<"Error: Unable to open the file fee.txt\n"<<endl;
+				exit(0);
+			}
+			fee >> FM.fee >> FM.fine;
+			bookTotalPrice = (price+(duration*FM.fee))*quantity;
     }
 
     string getBookName() const {
@@ -1069,10 +1166,7 @@ class Menus: public Verify, public Book {
 		}
 		
 		void addbook();
-		void searchbook();
 		void viewbook();
-		void searchbk();
-		void searchbg();
 		void updatebook(string code);
 		void deletebook(string code);
 		void fee();
@@ -1174,7 +1268,7 @@ class Menus: public Verify, public Book {
 		        		searchMenu(4);
 		        		break;
 		        	case 5:
-		        		//fee();
+		        		fee();
 		        		break;
 		        	case 6:
 		        		checkrentalrecord();
@@ -2203,16 +2297,13 @@ class Menus: public Verify, public Book {
 				cout << "\nNo books rented! Please try again later..." << endl;
 				sleep(2);
 				system("cls");
-				cout << "Recall Function" << endl;
-				// rented();
+				rented();
 			}
 			if(choice == 0) {
 				system("cls");
-				// userMenu();
-				cout << "Return to main" << endl;
+				userMenu();
 			}
 			else if(choice > 0 && choice <= numEntries) {
-				char confirmReturn;
 				int overdue = 0;
 				cout << "-----------------------------------------------------------------------------"<<endl;
 
@@ -2240,196 +2331,121 @@ class Menus: public Verify, public Book {
 
 				cout<<"\nConfirm action [Y/N]: ";
 				cin>>confirmReturn;    
-			}
-			else{
+			}else{
 				cout << "\nInvalid choice! Please re-enter...\n";
 				sleep(1);
 				system("cls");
 			}
 			inputFile.close();
-			/*if(numEntries == 0) {
-				cout<<"\n\n\t\t\t     No books rented...\n\n"<<endl;
-			} else {
-				overdueBooks = rentedBooks.listBooks(numEntries);
-			}
-			float fine = getoverduefee();
-			cout << "-----------------------------------------------------------------------------"<<endl;
-			cout << "**DISCLAIMER"<<endl;
-			cout << "  Select a line to return the specific book(s). Late returns are fined"<<endl;
-			cout << "  RM "<<fixed<<setprecision(2)<<fine<<"/day for each overdue book."<<endl;
-			cout << "-----------------------------------------------------------------------------"<<endl;
-			cout << "Enter your choice: ";
-			cin >> choice;
-
-    if(numEntries == 0 && choice != 0) {
-        cout << "\nNo books rented! Please try again later..." << endl;
-        sleep(2);
-        system("cls");
-        cout << "Recall Function" << endl;
-        // rented();
-    }
-    if(choice == 0) {
-        system("cls");
-        // userMenu();
-        cout << "Return to main" << endl;
-    }
-    else if(choice > 0 && choice <= numEntries) {
-        char confirmReturn;
-        int overdue = 0;
-        cout << "-----------------------------------------------------------------------------"<<endl;
-
-        for (size_t i = 0; i < overdueBooks.size(); ++i) {
-            if (overdueBooks[i].first == choice) {
-                cout << "Overdue by " << overdueBooks[i].second << " day(s). Total penalty fee is RM " << fixed << setprecision(2) << overdueBooks[i].second * fine << "." << endl;
-                RentedBook* book = rentedBooks.getBookByIndex(choice - 1);
-                if(book->getBookQuantity() > 1) {
-                    cout << "Pay penalty fee and return " << book->getBookQuantity() << " copies of '" << book->getBookName() << "'?" << endl;
-                } else if(book->getBookQuantity() == 1) {
-                    cout << "Pay penalty fee and return " << book->getBookQuantity() << " copy of '" << book->getBookName() << "'?" << endl;
-                }
-                overdue = 1;
-            }
-        }
-
-        if(overdue == 0){
-            RentedBook* book = rentedBooks.getBookByIndex(choice - 1);
-            if(book->getBookQuantity() > 1) {
-                cout << "Return " << book->getBookQuantity() << " copies of '" << book->getBookName() << "'?" << endl;
-            } else if(book->getBookQuantity() == 1) {
-                cout << "Return " << book->getBookQuantity() << " copy of '" << book->getBookName() << "'?" << endl;
-            }
-        }
-
-        cout<<"\nConfirm action [Y/N]: ";
-        cin>>confirmReturn;    
-    }
-    else{
-        cout << "\nInvalid choice! Please re-enter...\n";
-        sleep(1);
-        system("cls");
-    }
-    inputFile.close();
+			if(confirmReturn == 'Y' || confirmReturn == 'y'){
+				ifstream fileStockRead;
+				vector<string> lines;
+				string line;
+				
+				// Read lines from the file
+				fileStockRead.open("records/books.txt");
+				while (getline(fileStockRead, line)) {
+					lines.push_back(line);
+				}
+				fileStockRead.close();
+				
+				// Process entries and update lines
+				string ID, bookName, author, genre, price;
+				int stock, newStock, count = 0;
 			
-			    
-				if(confirmReturn == 'Y' || confirmReturn == 'y'){
-					ifstream fileStockRead;
-					vector<string> lines;
-					string line;
-					
-					// Read lines from the file
-					fileStockRead.open("records/books.txt");
-					while (getline(fileStockRead, line)) {
-					    lines.push_back(line);
-					}
-					fileStockRead.close();
-					
-					// Process entries and update lines
-				    string ID, bookName, author, genre, price;
-				    int stock, newStock, count = 0;
+				// Reopen the file at the beginning of each iteration
+				fileStockRead.open("records/books.txt");
 				
-				    // Reopen the file at the beginning of each iteration
-				    fileStockRead.open("records/books.txt");
-				    
-				    while (fileStockRead >> ID >> bookName >> price >> stock >> author >> genre) {
-				        count++;
-				        replace(bookName.begin(), bookName.end(), '%', ' ');
-				        
-				        if (bookName == r[choice-1].getBookName()) {
-				            int stockConvert = (stock+r[choice-1].getBookQuantity()), lineChange;
-						    stringstream floatStream;
-						    floatStream << stockConvert;
-						    string newStock = floatStream.str();
-						    
-						    replace(bookName.begin(), bookName.end(), ' ', '%');
-						    
-				            lines[count-1] = ID + " " + bookName + " " + price + " " + newStock + " " + author + " " + genre;
-				            break;
-				        }
-				    }
-				
-				    fileStockRead.close();								
-	
-					ofstream fileStockEdit("records/books.txt");
-					for (size_t i = 0; i < lines.size(); ++i) {
-				        fileStockEdit<< lines[i]<<"\n";
-				    }
-			    	fileStockEdit.close();
-			    	
-			    	filename = "records/rented/" + getUsername() + ".txt";
-			    	ifstream fileInput(filename.c_str());
-					vector<string> lines2;
-					string line2;
+				while (fileStockRead >> ID >> bookName >> price >> stock >> author >> genre) {
+					count++;
+					replace(bookName.begin(), bookName.end(), '%', ' ');
 					
-					while (getline(fileInput, line2)) {
-    					lines2.push_back(line2);
-					}
-					
-					fileInput.close();
-											
-			    	ofstream fileOutput(filename.c_str());
-				     for (size_t i = 0; i < lines2.size(); ++i) {
-				        if (i != (choice - 1)) {
-				            fileOutput << lines2[i] << '\n';
-				        }
-				    }
-
-				    fileOutput.close();
-				    
-				    for (int i = -1; i < overdueNo; ++i) {
-				    	if (overdueNum[i] == choice) {
-				    		//use a temp variable to store the penalty fee
-						    float temp_penaltyfee = overdueDays[i+1]*fine*r[choice-1].getBookQuantity();
-						    
-						    //add the penalty fee in the fee.txt file
-						    ifstream feein("records/fee.txt");
-						    if(!feein){
-						    	cout<<"Error: File fee.txt couldn't found"<<endl;
-						    	exit(0);
-							}
-							else{
-								//save in variable
-								feein >> FM.fee >> FM.fine >> FM.sum_penalty >>FM.money_earn_rent;
-								feein.close();
-								//add
-								FM.sum_penalty+=temp_penaltyfee;
-								ofstream addfee("records/fee.txt",ios::trunc);
-								//store back
-								addfee << FM.fee << " " << FM.fine << " " << FM.sum_penalty << " "<< FM.money_earn_rent;
-								addfee.close();
-								
-							}
+					RentedBook* book = rentedBooks.getBookByIndex(choice - 1);
+					if (bookName == book->getBookName()) {
+						int stockConvert = (stock+ book->getBookQuantity()), lineChange;
+						stringstream floatStream;
+						floatStream << stockConvert;
+						string newStock = floatStream.str();
 						
+						replace(bookName.begin(), bookName.end(), ' ', '%');
+						
+						lines[count-1] = ID + " " + bookName + " " + price + " " + newStock + " " + author + " " + genre;
+						break;
+					}
+				}
+			
+				fileStockRead.close();								
+
+				ofstream fileStockEdit("records/books.txt");
+				for (size_t i = 0; i < lines.size(); ++i) {
+					fileStockEdit<< lines[i]<<"\n";
+				}
+				fileStockEdit.close();
+				
+				filename = "records/rented/" + getUsername() + ".txt";
+				ifstream fileInput(filename.c_str());
+				vector<string> lines2;
+				string line2;
+				
+				while (getline(fileInput, line2)) {
+					lines2.push_back(line2);
+				}
+				
+				fileInput.close();
+										
+				ofstream fileOutput(filename.c_str());
+					for (size_t i = 0; i < lines2.size(); ++i) {
+					if (i != (choice - 1)) {
+						fileOutput << lines2[i] << '\n';
+					}
+				}
+
+				fileOutput.close();
+				
+				for (int i = -1; i < overdueNo; ++i) {
+					if (overdueBooks.size() == choice) {
+						//use a temp variable to store the penalty fee
+						RentedBook* book = rentedBooks.getBookByIndex(choice - 1);
+						float temp_penaltyfee = overdueBooks[i].second*fine*book->getBookQuantity();
+						
+						//add the penalty fee in the fee.txt file
+						ifstream feein("records/fee.txt");
+						if(!feein){
+							cout<<"Error: File fee.txt couldn't found"<<endl;
+							exit(0);
+						}
+						else{
+							//save in variable
+							feein >> FM.fee >> FM.fine >> FM.sum_penalty >>FM.money_earn_rent;
+							feein.close();
+							//add
+							FM.sum_penalty+=temp_penaltyfee;
+							ofstream addfee("records/fee.txt",ios::trunc);
+							//store back
+							addfee << FM.fee << " " << FM.fine << " " << FM.sum_penalty << " "<< FM.money_earn_rent;
+							addfee.close();
 						}
 					}
-				    cout<<"\nReturning book(s)..."<<endl;
-				    sleep(1);
-					system("cls");
-					rented();
 				}
-				else if(confirmReturn == 'N' || confirmReturn == 'n'){
-					cout<<"\nCancelling..."<<endl;
-				    sleep(1);
-					system("cls");
-					rented();
-				}
-				else{
-					cout<<"\nInvalid choice! Please re-enter..."<<endl;
-				    sleep(1);
-					system("cls");
-					rented();
-				}
+				cout<<"\nReturning book(s)..."<<endl;
+				sleep(1);
+				system("cls");
+				rented();
+			}
+			else if(confirmReturn == 'N' || confirmReturn == 'n'){
+				cout<<"\nCancelling..."<<endl;
+				sleep(1);
+				system("cls");
+				rented();
 			}
 			else{
-				cout << "\nInvalid choice! Please re-enter...\n";
-		        sleep(1);
-		        system("cls");
-		        rented();
+				cout<<"\nInvalid choice! Please re-enter..."<<endl;
+				sleep(1);
+				system("cls");
+				rented();
 			}
 		    inputFile.close();
-		    delete[] overdueNum;
-		    delete[] overdueDays;
-		}*/
-};
+		};
 };
 			
 // function show complete current book list unsorted overloading
@@ -2437,7 +2453,7 @@ void currentbooklist(){
 	
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
 	cout << "The Current Book List:" << endl <<endl;
-	cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(13) << "Price" << left << setw(5) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+	cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(10) << "Price(RM)" << left << setw(8) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
 	BookLinkedList b;
 	
 	ifstream readfile("records/books.txt");
@@ -2460,7 +2476,7 @@ void currentbooklist(){
 void currentbooklist(BookLinkedList& bl) {
     cout << "----------------------------------------------------------------------------------------------" << endl;
     cout << "The Current Book List:" << endl <<endl;
-    cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(13) << "Price" << left << setw(5) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+    cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(10) << "Price(RM)" << left << setw(8) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
     bl.completelist();
 }
 
@@ -2718,7 +2734,6 @@ void Menus::searchMenu(int num){
 	cout << "[1] Search by ID"<<endl;
 	cout << "[2] Search by Book Name"<<endl;
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
-	cout << "*Note: It will only find one and only result, so please type COMPLETE ID / Name"<<endl<<endl;
 	cout << "Enter your choice: ";
 	cin >> choice;
 	
@@ -2747,14 +2762,15 @@ void Menus::searchMenu(int num){
 			}
 			readfile.close();
 		}
+		cout << "*Note: It will only find one and only result, so please type COMPLETE ID"<<endl<<endl;
 		cout<<"Enter the Book ID to search: ";
 		cin >> I;
 		Book* book = bl.find(I);
 		if(book != NULL){
 			cout << "----------------------------------------------------------------------------------------------"<<endl;
 			cout << "Book found!"<<endl<<endl;
-			cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(11) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
-			cout << left << setw(5) << book->getBookID() << left << setw(37) << book->getBookName() << left << setw(11) << book->getBookPrice() << left << setw(7) << book->getBookStock() << left << setw(25) << book->getBookAuthor() << left << setw(15) << book->getBookGenre() << endl;
+			cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(10) << "Price(RM)" << left << setw(8) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+			cout << left << setw(5) << book->getBookID() << left << setw(37) << book->getBookName() << left << setw(10) <<fixed<<setprecision(2)<< book->getBookPrice() << left << setw(8) << book->getBookStock() << left << setw(25) << book->getBookAuthor() << left << setw(15) << book->getBookGenre() << endl;
 			cout << "----------------------------------------------------------------------------------------------"<<endl;
 			cout << "Confirm action [y/n]: ";
 			cin >> yesno;
@@ -2799,6 +2815,7 @@ void Menus::searchMenu(int num){
 			}
 			readfile.close();
 		}
+		cout << "*Note: It will only find one and only result, so please type COMPLETE Name"<<endl<<endl;
 		cout<<"Enter the full book name to serach: ";
 		cin.ignore();
 		getline(cin,n);
@@ -2806,8 +2823,8 @@ void Menus::searchMenu(int num){
 		if(book != NULL){
 			cout << "----------------------------------------------------------------------------------------------"<<endl;
 			cout << "Book found!"<<endl<<endl;
-			cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(11) << "Price(RM)" << left << setw(7) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
-			cout << left << setw(5) << book->getBookID() << left << setw(37) << book->getBookName() << left << setw(11) << book->getBookPrice() << left << setw(7) << book->getBookStock() << left << setw(25) << book->getBookAuthor() << left << setw(15) << book->getBookGenre() << endl;
+			cout << left << setw(5) << "ID" << left << setw(37) << "Book Name" << left << setw(10) << "Price(RM)" << left << setw(8) << "Stock" << left << setw(25) << "Author" << left << setw(15) << "Genre" << endl;
+			cout << left << setw(5) << book->getBookID() << left << setw(37) << book->getBookName() << left << setw(10) <<fixed<<setprecision(2) << book->getBookPrice() << left << setw(8) << book->getBookStock() << left << setw(25) << book->getBookAuthor() << left << setw(15) << book->getBookGenre() << endl;
 			cout << "----------------------------------------------------------------------------------------------"<<endl;
 			cout << "Confirm action [y/n]: ";
 			cin >> yesno;
@@ -2848,15 +2865,17 @@ void Menus::searchMenu(int num){
 			searchMenu(4);
 	}
 	cout << "=============================================================================================="<<endl;
-	cout<<"Search again [y/n]: ";
+	cout<< "[1] Search again "<<endl;
+	cout << "----------------------------------------------------------------------------------------------"<<endl;
+	cout << "Enter your choice: ";
 	cin>>ch;
-	if(ch=='y'||ch=='Y'){
+	if(ch=='1'){
 		if(num==3)
 			searchMenu(3);
 		else if(num==4)
 			searchMenu(4);
 	}
-	else if(ch=='n'||ch=='N'){
+	else if(ch=='0'){
 		cout<<"\nBack to admin menu..."<<endl;
 		sleep(1);
 		adminMenu();
@@ -2938,7 +2957,6 @@ void Menus::searchMenu(){
 		searchMenu();
 	}
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
-	cout << "[0] View Book Menu"<<endl;
 	cout << "[1] Seacrh Again"<<endl;
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
 	cout << "Enter your choice: ";
@@ -3025,7 +3043,6 @@ void Menus::sortMenu(){
 		sortMenu();
 	}
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
-	cout << "[0] View Book Menu"<<endl;
 	cout << "[1] Sort Again"<<endl;
 	cout << "----------------------------------------------------------------------------------------------"<<endl;
 	cout << "Enter your choice: ";
@@ -3255,7 +3272,7 @@ void Menus::addbook(){
 			
 		cout << "The book is added successfully!"<<endl;
 		currentbooklist();
-		cout << ".............................................................................."<<endl;
+		cout << "----------------------------------------------------------------------------------------------"<<endl;
 		cout << "Do you want to add another book? [y/n]: ";
 		cin >> choice;
 	}while(choice=='y'||choice=='Y');
@@ -3263,6 +3280,107 @@ void Menus::addbook(){
 	sleep(1);
 	//back to admin menu
 	adminMenu();
+}
+
+void Menus::fee(){
+	int choice;
+	char yesno,option;
+	
+	do{
+		system("cls");
+		fflush(stdin);
+		cout << "============================================================================="<<endl;
+		cout << "[0] Back \t\t\t  FEE MANAGEMENT"<<endl;
+		cout << "============================================================================="<<endl;
+		cout << "Admin Menu > Fee Management "<<endl;
+		cout << "-----------------------------------------------------------------------------"<<endl;
+		cout << "[1] Rental Fee"<<endl;
+		cout << "[2] Penalty Fee"<<endl;
+		cout << "[3] View Incured Penalty Fee and Money Earned"<<endl;
+		cout << "-----------------------------------------------------------------------------"<<endl;
+		cout << "Enter your choice: ";
+		cin>>choice;
+		cout<<endl;
+		ifstream checkfee("records/fee.txt");
+		if(!checkfee){
+			cout <<"Error: Unable to open the file fee.txt"<<endl;
+			exit(0);
+		}
+		checkfee >> FM.fee >> FM.fine >> FM.sum_penalty >> FM.money_earn_rent;
+			switch(choice){
+				case 0:
+					adminMenu();
+				case 1:
+					cout<<"The current rental fee is RM " <<fixed<<setprecision(2)<< FM.fee <<"."<<endl;
+					cout<<"Do you want to change? [y/n]: ";
+					cin>>yesno;
+					if(yesno=='y'||yesno=='Y'){
+						changefee(1);
+					}
+					else{
+						fee();
+					}
+					break;
+				case 2:
+					cout<<"The current overdue fee is RM " <<fixed<<setprecision(2)<< FM.fine <<"."<<endl;
+					cout<<"Do you want to change? [y/n]: ";
+					cin>>yesno;
+					if(yesno=='y'||yesno=='Y'){
+						changefee(2);
+					}
+					else{
+						fee();
+					}
+					break;
+				case 3:
+					cout<<"The Total Incurred Penalty Fees is RM "<<fixed<<setprecision(2)<< FM.sum_penalty <<"."<<endl;
+					cout<<"The Total Money Earned From Renting is RM "<<fixed<<setprecision(2)<< FM.money_earn_rent<<"."<<endl;
+					cout<<"\n=>Total Money Earned (including Penalty Fees) is RM "<<fixed<<setprecision(2)<< FM.sum_penalty + FM.money_earn_rent<<"."<<endl;
+					break;
+				default:
+					cout<<"Invalid choice. Please enter the correct input."<<endl;
+					sleep(2);
+					fee();
+			}
+		checkfee.close();
+		cout << "-----------------------------------------------------------------------------"<<endl;
+		cout << "Do you want to stay in this page? [y/n]: ";
+		cin >> option;
+		
+		if(option=='n'||option=='N'){
+			cout<< "Back to Admin Menu..."<<endl;
+			sleep(2);
+			adminMenu();
+		}
+		else if(option!='n'&&option!='N'&&option!='y'&&option!='Y'){
+			cout<< "Wrong input."<<endl;
+			sleep(2);
+			fee();
+		}
+		
+	}while(option=='y'||option=='Y');
+	
+}
+//this is a friend func of class Book
+void changefee(int op){
+	Book *B = new Book;
+
+	cout << "-----------------------------------------------------------------------------"<<endl;
+	if(op ==1){
+		cout<<"New Rental Fee each book per day: RM ";
+		cin >> FM.fee;
+		B->rentf=FM.fee;
+		B->setrentfee();
+		delete B;
+	}
+	else if(op==2){
+		cout<<"New Overdue Penalty Cost: RM ";
+		cin >> FM.fine;
+		B->overduef=FM.fine;
+		B->setoverduefee();
+		delete B;
+	}
+
 }
 
 void Menus::checkrentalrecord(){
@@ -3568,6 +3686,7 @@ string getGenre(const string& id) {
 		default: return "Unknown"; 
 	}
 }
+
 
 int main(){
 	Menus client;
