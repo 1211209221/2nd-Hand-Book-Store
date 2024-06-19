@@ -797,7 +797,7 @@ public:
         char key = genre[0];
         int index = key - 'A';
         if (index < 0 || index >= tableSize) {
-            cerr << "Invalid index: " << index << endl;
+            cout << "Invalid index: " << index << endl;
             return;
         }
 
@@ -817,8 +817,7 @@ public:
     }
 
     Book** searchByGenre(string genre, int& numResults, int maxResults) {
-        const int MAX_RESULTS = 100;
-        Book** searchResults = new Book*[MAX_RESULTS];
+        Book** searchResults = new Book*[maxResults];
         numResults = 0;
 
         char key = genre[0];
@@ -829,7 +828,7 @@ public:
         }
 
         Node* current = hashTable[index];
-        while (current != NULL && numResults < MAX_RESULTS) {
+        while (current != NULL && numResults < maxResults) {
             searchResults[numResults++] = current->book;
             current = current->next;
         }
@@ -1590,6 +1589,10 @@ class Menus: public Verify, public Book {
     			cout << "Enter the genre to search: ";
 			    cin >> genre;
 			    
+			    transform(genre.begin(), genre.end(), genre.begin(), ::tolower);
+			    
+			    genre[0] = toupper(genre[0]);
+			    
 			    bool validGenre = false;
 			    for (int i = 0; i < numGenres; ++i) {
 			        if (genre == genres[i]) {
@@ -1672,9 +1675,15 @@ class Menus: public Verify, public Book {
 			                    rental(choice, bookList);
 			                } else {
 			                    cout << "Selected book not found in the catalog." << endl;
+		        				sleep(2);
+								system("cls");
+								searchCatalog();
 			                }
 		                } else {
-		                    cout << "Invalid choice!" << endl;
+		                    cout << "\nInvalid choice! Please try again...\n";
+	        				sleep(2);
+							system("cls");
+							searchCatalog();
 		                }
             		}
 			    }    
