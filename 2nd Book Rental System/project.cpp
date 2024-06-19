@@ -797,7 +797,7 @@ public:
         char key = genre[0];
         int index = key - 'A';
         if (index < 0 || index >= tableSize) {
-            cout << "Invalid index: " << index << endl;
+            cerr << "Invalid index: " << index << endl;
             return;
         }
 
@@ -817,7 +817,8 @@ public:
     }
 
     Book** searchByGenre(string genre, int& numResults, int maxResults) {
-        Book** searchResults = new Book*[maxResults];
+        const int MAX_RESULTS = 100;
+        Book** searchResults = new Book*[MAX_RESULTS];
         numResults = 0;
 
         char key = genre[0];
@@ -828,7 +829,7 @@ public:
         }
 
         Node* current = hashTable[index];
-        while (current != NULL && numResults < maxResults) {
+        while (current != NULL && numResults < MAX_RESULTS) {
             searchResults[numResults++] = current->book;
             current = current->next;
         }
@@ -836,31 +837,16 @@ public:
     }
 };
 
-class Cart {
-private:
+class Node {
+protected: // Changed from private to protected
     string bookName;
     double bookPrice, bookTotalPrice;
     int bookQuantity;
     int bookDuration;
-    Cart* next;
+    Node* next;
 
 public:
-    Cart() : next(NULL) {}
-
-    void setdata(string name, double price, int quantity, int duration) {
-        bookName = name;
-        bookPrice = price;
-        bookQuantity = quantity;
-        bookDuration = duration;
-
-		ifstream fee("records/fee.txt");
-			if(!fee){
-				cout<<"Error: Unable to open the file fee.txt\n"<<endl;
-				exit(0);
-			}
-			fee >> FM.fee >> FM.fine;
-			bookTotalPrice = (price+(duration*FM.fee))*quantity;
-    }
+    Node() : next(NULL) {}
 
     string getBookName() const {
         return bookName;
@@ -880,6 +866,29 @@ public:
 
     double getBookTotalPrice() const {
         return bookPrice * bookQuantity;
+    }
+};
+
+class Cart : public Node{
+private:
+    Cart* next;
+
+public:
+    Cart() : next(NULL) {}
+
+    void setdata(string name, double price, int quantity, int duration) {
+        bookName = name;
+        bookPrice = price;
+        bookQuantity = quantity;
+        bookDuration = duration;
+
+		ifstream fee("records/fee.txt");
+			if(!fee){
+				cout<<"Error: Unable to open the file fee.txt\n"<<endl;
+				exit(0);
+			}
+			fee >> FM.fee >> FM.fine;
+			bookTotalPrice = (price+(duration*FM.fee))*quantity;
     }
 
     Cart* getNext() const {
@@ -1093,65 +1102,6 @@ class RentedLinkedList {
             }
             return temp;
         }
-
-		/*void listBooks(int num) {
-			string disDateDue;
-			int count = 1, overdueNo = -1, daysDifference = 0, choice;
-			int* overdueNum = new int[num];
-		    int* overdueDays = new int[num];
-
-			//declaring variables for date time
-			time_t currentTime = time(0);
-
-			//tm is human readable format, localtime convert time_t to tm
-			tm* currentDate = localtime(&currentTime);
-
-			//declaring due date to tm format, {0} is to initialize all values to 0
-			tm dueDate = {};
-
-			//variable use to separate duedate into day, month, year
-			istringstream ss(disDateDue);
-			string dayStr, monthStr, yearStr;
-			getline(ss, dayStr, '/');
-			getline(ss, monthStr, '/');
-			getline(ss, yearStr);
-
-			//to convert string to int
-			int day, month, year;
-			istringstream(dayStr) >> day;
-			istringstream(monthStr) >> month;
-			istringstream(yearStr) >> year;
-
-			//declaring datatype tm, {0} is to initialize all values to 0
-			tm specificDate = {0};
-
-			//setting the values of specific date
-			specificDate.tm_mday = day;
-			specificDate.tm_mon = month - 1;
-			specificDate.tm_year = year - 1900;
-			
-			//To calculate the difference between current date and due date
-			daysDifference = currentDate->tm_mday - specificDate.tm_mday + (currentDate->tm_mon - specificDate.tm_mon) * 30 + (currentDate->tm_year - specificDate.tm_year) * 365;
-
-			temp = head;
-			while (temp != NULL) {
-				cout << left << setw(5) << count++;
-				cout << left << setw(37) << temp->bookName << left << setw(9) << temp->bookQuantity << left << setw(16) << temp->dueDate;
-				if (currentDate->tm_year == specificDate.tm_year && currentDate->tm_mon == specificDate.tm_mon && currentDate->tm_mday == specificDate.tm_mday) {
-					cout << "\033[1;32mActive\033[0m" << endl;
-				}
-				else if (difftime(currentTime, mktime(&specificDate)) > 0) {
-					cout << "\033[1;31mOverdue\033[0m"<< endl;
-					overdueNum[overdueNo++] = count-1;
-					overdueDays[overdueNo] = daysDifference;
-				}
-				else{
-					cout << "\033[1;32mActive\033[0m" << endl;
-				}
-				//r[count-2].setdatarental(disName,disQuantity);
-				temp = temp->next;
-			}
-		}*/
 };
 
 class Menus: public Verify, public Book {
@@ -1187,7 +1137,7 @@ class Menus: public Verify, public Book {
 		        cout << "2. Search Catalog\n";
 		        cout << "3. View Cart\n";
 		        cout << "4. View Rented Books\n";
-		        cout << "5. View Receipts\n";
+		        //cout << "5. View Receipts\n";
 		        cout << "-----------------------------------------------------------------------------"<<endl;
 		        cout << "Enter your choice: ";
 		        int choice;
@@ -1213,10 +1163,10 @@ class Menus: public Verify, public Book {
 		                system("cls");
 		                searchCatalog();
 		                break;
-		            case 5:
-						system("cls");
+		            //case 5:
+						//system("cls");
 						//viewReceipt();
-						break;    
+						//break;    
 		            default:
 		                cout << "\nInvalid choice! Please re-enter...\n";
 		                sleep(1);
@@ -1589,10 +1539,6 @@ class Menus: public Verify, public Book {
     			cout << "Enter the genre to search: ";
 			    cin >> genre;
 			    
-			    transform(genre.begin(), genre.end(), genre.begin(), ::tolower);
-			    
-			    genre[0] = toupper(genre[0]);
-			    
 			    bool validGenre = false;
 			    for (int i = 0; i < numGenres; ++i) {
 			        if (genre == genres[i]) {
@@ -1675,15 +1621,9 @@ class Menus: public Verify, public Book {
 			                    rental(choice, bookList);
 			                } else {
 			                    cout << "Selected book not found in the catalog." << endl;
-		        				sleep(2);
-								system("cls");
-								searchCatalog();
 			                }
 		                } else {
-		                    cout << "\nInvalid choice! Please try again...\n";
-	        				sleep(2);
-							system("cls");
-							searchCatalog();
+		                    cout << "Invalid choice!" << endl;
 		                }
             		}
 			    }    
@@ -2093,7 +2033,8 @@ class Menus: public Verify, public Book {
 				    cout << "Confirm check out? [Y/N]: ";
 				    cin>>checkoutConfirm;
 						if (checkoutConfirm == 'Y' || checkoutConfirm == 'y') {
-					        cout << "\nGenerating receipt..." << endl;
+					        //cout << "\nGenerating receipt..." << endl;
+							cout << "Back to main menu in 3 seconds..." << endl;
 					        sleep(2);
 					        system("cls");
 					
