@@ -1689,8 +1689,7 @@ class Menus: public Verify, public Book {
 		    } else if (choice2 == 1) {
 		        char confirm;
 		        double total_fee;
-//		        float rentfee = getrentfee();
-				float rentfee = 0.20;	
+		        float rentfee = getrentfee();
 		        system("cls");
 		        cout << "=============================================================================" << endl;
 		        cout << "[0] Back \t\t\t   RENT" << endl;
