@@ -2275,7 +2275,7 @@ class Menus: public Verify, public Book {
 			        ReceiptWrite << "%PM"<<endl;
 		    }	
 			ReceiptWrite << fixed << setprecision(2) << getrentfee() <<endl;
-			while(current != nullptr){
+			while(current != NULL){
 				string ReceiptBookName = current->getBookName();
 				replace(ReceiptBookName.begin(), ReceiptBookName.end(), ' ', '%');
 				ReceiptWrite << ReceiptBookName << " " << current->getBookQuantity() << " " << current->getBookPrice() << " "<< current->getBookDays() << endl;
@@ -2290,7 +2290,7 @@ class Menus: public Verify, public Book {
 			// Use the passed CartLinkedList when printing the receipt
 			current = cartList->getHead();
 			int i = 1;
-			while(current != nullptr){
+			while(current != NULL){
 				cout<<"\t"<<left<<setw(5)<<i;
 				current->listReceipt();
 				bookGrandTotal += current->getBookTotalPrice();
