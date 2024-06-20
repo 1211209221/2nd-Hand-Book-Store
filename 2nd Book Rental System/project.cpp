@@ -221,12 +221,12 @@ public:
 		
 		            // Check password complexity
 		            bool hasUppercase = false, hasLowercase = false, hasDigit = false, hasSpecialChar = false;
-		            for (char ch : password) {
-		                if (isupper(ch)) hasUppercase = true;
-		                else if (islower(ch)) hasLowercase = true;
-		                else if (isdigit(ch)) hasDigit = true;
-		                else if (specialCharacters.find(ch) != string::npos) hasSpecialChar = true;
-		            }
+		            for (int i = 0; i < password.length(); i++) {
+						if (isupper(password[i])) hasUppercase = true;
+						else if (islower(password[i])) hasLowercase = true;
+						else if (isdigit(password[i])) hasDigit = true;
+						else if (specialCharacters.find(password[i]) != string::npos) hasSpecialChar = true;
+					}
 		
 		            if (!(hasUppercase && hasLowercase && hasDigit && hasSpecialChar)) {
 		                cout << "\nInvalid password! Password must contain at least: \nONE UPPERCASE LETTER \nONE LOWERCASE LETTER \nONE DIGIT \nONE SPECIAL CHARACTER ";
@@ -797,7 +797,7 @@ public:
         char key = genre[0];
         int index = key - 'A';
         if (index < 0 || index >= tableSize) {
-            cerr << "Invalid index: " << index << endl;
+            cout << "Invalid index: " << index << endl;
             return;
         }
 
@@ -817,8 +817,7 @@ public:
     }
 
     Book** searchByGenre(string genre, int& numResults, int maxResults) {
-        const int MAX_RESULTS = 100;
-        Book** searchResults = new Book*[MAX_RESULTS];
+        Book** searchResults = new Book*[maxResults];
         numResults = 0;
 
         char key = genre[0];
@@ -829,7 +828,7 @@ public:
         }
 
         Node* current = hashTable[index];
-        while (current != NULL && numResults < MAX_RESULTS) {
+        while (current != NULL && numResults < maxResults) {
             searchResults[numResults++] = current->book;
             current = current->next;
         }
@@ -1547,6 +1546,10 @@ class Menus: public Verify, public Book {
     			cout << "-----------------------------------------------------------------------------"<<endl;
     			cout << "Enter the genre to search: ";
 			    cin >> genre;
+
+				transform(genre.begin(), genre.end(), genre.begin(), ::tolower);
+			    
+			    genre[0] = toupper(genre[0]);
 			    
 			    bool validGenre = false;
 			    for (int i = 0; i < numGenres; ++i) {
